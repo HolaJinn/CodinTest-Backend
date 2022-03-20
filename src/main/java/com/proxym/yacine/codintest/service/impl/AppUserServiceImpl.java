@@ -244,7 +244,7 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 
         content = content.replace("[[name]]", newAppUser.getFirstName());
 //        String verifyURL = siteURL + "/auth/verify?code=" + code;
-        String verifyURL = Constants.CLIENT_URL + siteURL + "/auth/verify?code=" + code;
+        String verifyURL = Constants.CLIENT_URL + "auth/verify?code=" + code;
 
         content = content.replace("[[URL]]", verifyURL);
 
