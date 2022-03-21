@@ -86,6 +86,13 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
         return appUserRepository.findByEmail(email).orElseThrow(() -> new CustomException("No user found with such email", "USER NOT FOUND", 404));
     }
 
+    @Override
+    public AppUser findById(Long id) {
+        return appUserRepository.findById(id).orElseThrow(
+                () -> new CustomException("No user found with such ID", "USER NOT FOUND", 404)
+        );
+    }
+
     private Set<SimpleGrantedAuthority> getAuthority(AppUser user) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));

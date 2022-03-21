@@ -12,6 +12,7 @@ import java.util.List;
 public interface AppUserService {
     List<AppUser> getAll();
     AppUser findByEmail(String email);
+    AppUser findById(Long id);
     void saveAppUser(NewAppUser newAppUser, String siteURL) throws MessagingException, UnsupportedEncodingException;
     void saveCompanyOwner(NewCompanyOwner newCompanyOwner, String siteURL) throws MessagingException, UnsupportedEncodingException;
     void sendVerificationCode(NewAppUser newAppUser, String siteURL, String code) throws MessagingException, UnsupportedEncodingException;

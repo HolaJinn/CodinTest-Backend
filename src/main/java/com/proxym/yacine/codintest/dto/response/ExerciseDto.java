@@ -22,16 +22,4 @@ public class ExerciseDto {
     private Integer timerInMinute;
     private String programmingLanguage;
     private String initialCode;
-
-    public static ExerciseDto fromEntity(Exercise exercise) {
-        if(exercise == null) {
-            throw new CustomException("Can't map null entity", "INVALID EXERCISE", 400);
-        }
-        return ExerciseDto.builder()
-                .id(exercise.getId())
-                .creatorId(exercise.getCreator().getId())
-                .title(exercise.getTitle())
-                .build();
-
-    }
 }
