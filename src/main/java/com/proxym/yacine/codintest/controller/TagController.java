@@ -3,6 +3,7 @@ package com.proxym.yacine.codintest.controller;
 import com.proxym.yacine.codintest.dto.request.NewTagRequest;
 import com.proxym.yacine.codintest.dto.response.TagResponse;
 import com.proxym.yacine.codintest.service.TagService;
+import com.proxym.yacine.codintest.util.Routes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/tags")
+@RequestMapping(Routes.tagsRoute)
 public class TagController {
 
     @Autowired
@@ -30,7 +31,7 @@ public class TagController {
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }
 
-    @GetMapping("/by-name")
+    @GetMapping(Routes.tagsByNameRoute)
     public ResponseEntity<TagResponse> getByName(@RequestParam String name) {
         TagResponse tag = tagService.findByName(name);
         return new ResponseEntity<>(tag, HttpStatus.OK);

@@ -5,6 +5,7 @@ import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
 import com.proxym.yacine.codintest.service.ExerciseService;
+import com.proxym.yacine.codintest.util.Routes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/exercises")
+@RequestMapping(Routes.exercisesRoute)
 public class ExerciseController {
 
     @Autowired

@@ -3,6 +3,7 @@ package com.proxym.yacine.codintest.controller;
 import com.proxym.yacine.codintest.dto.request.NewProgrammingLanguageRequest;
 import com.proxym.yacine.codintest.dto.response.ProgrammingLanguageDto;
 import com.proxym.yacine.codintest.service.ProgrammingLanguageService;
+import com.proxym.yacine.codintest.util.Routes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/programming-languages")
+@RequestMapping(Routes.programmingLanguagesRoute)
 public class ProgrammingLanguageController {
 
     @Autowired
@@ -30,7 +31,7 @@ public class ProgrammingLanguageController {
         return new ResponseEntity<>(programmingLanguage, HttpStatus.OK);
     }
 
-    @GetMapping("/by-name")
+    @GetMapping(Routes.programmingLanguagesByNameRoute)
     public ResponseEntity<ProgrammingLanguageDto> getByName(@RequestParam String name) {
         ProgrammingLanguageDto programmingLanguage = service.findByName(name);
         return new ResponseEntity<>(programmingLanguage, HttpStatus.OK);
