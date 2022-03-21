@@ -5,7 +5,6 @@ import com.proxym.yacine.codintest.util.ExerciseDifficulty;
 import com.proxym.yacine.codintest.util.ExerciseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -18,11 +17,14 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Exercise {
+public class Exercise extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne
+    private AppUser creator;
 
     private String title;
     private String description;
@@ -32,7 +34,7 @@ public class Exercise {
     @Column(name = "timer_in_minute")
     private Integer timerInMinute;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "programming_language_id")
     private ProgrammingLanguage programmingLanguage;
 
@@ -50,8 +52,4 @@ public class Exercise {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
     private Collection<Tag> tags = new ArrayList<>();
-
-
-    @ManyToOne
-    private AppUser appUser;
 }

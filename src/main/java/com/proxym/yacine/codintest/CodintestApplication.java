@@ -2,6 +2,7 @@ package com.proxym.yacine.codintest;
 
 import com.proxym.yacine.codintest.model.Role;
 import com.proxym.yacine.codintest.repository.RoleRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,6 +19,11 @@ public class CodintestApplication implements CommandLineRunner {
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	@Bean
+	public ModelMapper modelMapper() {
+		return new ModelMapper();
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(CodintestApplication.class, args);
