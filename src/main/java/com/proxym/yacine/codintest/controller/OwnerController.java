@@ -14,7 +14,7 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping(Routes.ownerRoute)
 public class OwnerController {
