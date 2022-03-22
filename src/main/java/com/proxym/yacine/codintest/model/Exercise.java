@@ -54,7 +54,7 @@ public class Exercise extends Auditable {
             CascadeType.MERGE})
     @JoinTable(name = "exercises_tags",
             joinColumns = @JoinColumn(name = "exercise_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
     )
     private Collection<Tag> tags = new ArrayList<>();
 }

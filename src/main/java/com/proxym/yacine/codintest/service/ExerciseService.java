@@ -3,7 +3,9 @@ package com.proxym.yacine.codintest.service;
 import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
 import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
+import com.proxym.yacine.codintest.dto.response.TagResponse;
 import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
+import com.proxym.yacine.codintest.model.Exercise;
 
 import java.util.List;
 
@@ -12,5 +14,7 @@ public interface ExerciseService {
     ExerciseDto findById(Long id);
     void create(NewExerciseRequest newExerciseRequest);
     List<TestCaseResponse> getAllTestCases(Long exerciseId);
-    void addTestCase(Long exerciseId, NewTestCaseRequest newTestCaseRequest);
+    void addTestCase(NewTestCaseRequest newTestCaseRequest);
+    List<TagResponse> getAllTags(Long exerciseId);
+    void addTag(Long exerciseId, Long tagId);
 }

@@ -3,14 +3,13 @@ package com.proxym.yacine.codintest.service.impl;
 import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
 import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
+import com.proxym.yacine.codintest.dto.response.TagResponse;
 import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
 import com.proxym.yacine.codintest.exception.CustomException;
-import com.proxym.yacine.codintest.model.AppUser;
-import com.proxym.yacine.codintest.model.Exercise;
-import com.proxym.yacine.codintest.model.ProgrammingLanguage;
-import com.proxym.yacine.codintest.model.TestCase;
+import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.repository.ExerciseRepository;
 import com.proxym.yacine.codintest.repository.ProgrammingLanguageRepository;
+import com.proxym.yacine.codintest.repository.TagRepository;
 import com.proxym.yacine.codintest.repository.TestCaseRepository;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.ExerciseService;
@@ -20,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +39,9 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Autowired
     private TestCaseRepository testCaseRepository;
+
+    @Autowired
+    private TagRepository tagRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -79,14 +82,14 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public List<TestCaseResponse> getAllTestCases(Long exerciseId) {
-        return testCaseRepository.findAll().stream()
-                .map(testCase -> modelMapper.map(testCase, TestCaseResponse.class))
-                .collect(Collectors.toList());
+        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+        List<TestCase> testCases = exercise.getTestCases();
+        return testCases.stream().map(testCase -> modelMapper.map(testCase, TestCaseResponse.class)).collect(Collectors.toList());
     }
 
     @Override
-    public void addTestCase(Long exerciseId, NewTestCaseRequest newTestCaseRequest) {
-        Exercise exercise = exerciseRepository.findById(exerciseId)
+    public void addTestCase(NewTestCaseRequest newTestCaseRequest) {
+        Exercise exercise = exerciseRepository.findById(newTestCaseRequest.getExerciseId())
                 .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
 
         TestCase testCase = TestCase.builder()
@@ -100,5 +103,27 @@ public class ExerciseServiceImpl implements ExerciseService {
         exercise.getTestCases().add(testCase);
         testCaseRepository.save(testCase);
         exerciseRepository.save(exercise);
+    }
+
+    @Override
+    public List<TagResponse> getAllTags(Long exerciseId) {
+        Exercise exercise = exerciseRepository.getById(exerciseId);
+        Collection<Tag> tags = exercise.getTags();
+        return tags.stream().map(tag -> modelMapper.map(tag, TagResponse.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public void addTag(Long exerciseId, Long tagId) {
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+
+        if(!tagRepository.existsById(tagId)) {
+            throw new CustomException("No tag found with such ID", "TAG NOT FOUND", 404);
+        }
+
+        Tag tag = tagRepository.getById(tagId);
+        exercise.getTags().add(tag);
+        exerciseRepository.save(exercise);
+        log.info(String.format("Tag %s added successfully to exercise with ID: %s", tag.getName(), exerciseId));
     }
 }
