@@ -5,7 +5,6 @@ import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TagResponse;
 import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
-import com.proxym.yacine.codintest.model.Exercise;
 
 import java.util.List;
 

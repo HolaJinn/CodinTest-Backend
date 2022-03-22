@@ -64,11 +64,25 @@ public class ExerciseServiceImpl implements ExerciseService {
     @Override
     public void create(NewExerciseRequest newExerciseRequest) {
 
-        AppUser appUser = appUserService.findById(newExerciseRequest.getCreatorId());
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        System.out.println(user.getRole());
+        System.out.println(user.getRole().getId());
+        System.out.println(user.getRole().getName());
+
+        if (!user.isVerified()) {
+            throw new CustomException("You should verify your account first","NOT VERIFIED", 400);
+        }
+
+        if (user.getRole().getId().intValue() == 4) {
+            throw new CustomException("You are not allowed to create exercises", "UNAUTHORIZED", 403);
+        }
+
+
+//        AppUser appUser = appUserService.findById(newExerciseRequest.getCreatorId());
         ProgrammingLanguage programmingLanguage = programmingLanguageRepository.findByName(newExerciseRequest.getProgrammingLanguage())
                 .orElseThrow(() -> new CustomException("No programming language found with this name", "PROGRAMMING LANGUAGE NOT FOUND", 404));
         Exercise exercise = Exercise.builder()
-                .creator(appUser)
+                .creator(user)
                 .title(newExerciseRequest.getTitle())
                 .description(newExerciseRequest.getDescription())
                 .initialCode(newExerciseRequest.getInitialCode())
