@@ -26,9 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.transaction.Transactional;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.proxym.yacine.codintest.model.QTag.tag;
 
 @Service
 @Slf4j
@@ -167,6 +170,11 @@ public class ExerciseServiceImpl implements ExerciseService {
             if(options.getStatus() != null) builder.and(qExercise.status.eq(options.getStatus()));
             if(options.getTimerInMinute() != null) builder.and(qExercise.timerInMinute.between(0, options.getTimerInMinute()));
             if (options.getProgrammingLanguage() != null) builder.and(qExercise.programmingLanguage.name.containsIgnoreCase(options.getProgrammingLanguage()));
+            if (options.getTags() != null) {
+                for(int i = 0; i < options.getTags().size(); i++) {
+                    builder.and(qExercise.tags.any().id.eq(options.getTags().get(i)));
+                }
+            }
             Sort.Direction direction = (options.getOrder().equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;
             PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, options.getProperties()));
             return (builder.getValue() != null) ? exerciseRepository.findAll(builder, pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class)) : exerciseRepository.findAll(pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class));
