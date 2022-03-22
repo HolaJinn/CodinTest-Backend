@@ -1,5 +1,6 @@
 package com.proxym.yacine.codintest.service.impl;
 
+import com.proxym.yacine.codintest.dto.ExerciseFilterOption;
 import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
 import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
@@ -13,10 +14,16 @@ import com.proxym.yacine.codintest.repository.TagRepository;
 import com.proxym.yacine.codintest.repository.TestCaseRepository;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.ExerciseService;
+import com.proxym.yacine.codintest.util.Order;
+import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
@@ -77,8 +84,6 @@ public class ExerciseServiceImpl implements ExerciseService {
             throw new CustomException("You are not allowed to create exercises", "UNAUTHORIZED", 403);
         }
 
-
-//        AppUser appUser = appUserService.findById(newExerciseRequest.getCreatorId());
         ProgrammingLanguage programmingLanguage = programmingLanguageRepository.findByName(newExerciseRequest.getProgrammingLanguage())
                 .orElseThrow(() -> new CustomException("No programming language found with this name", "PROGRAMMING LANGUAGE NOT FOUND", 404));
         Exercise exercise = Exercise.builder()
@@ -139,5 +144,32 @@ public class ExerciseServiceImpl implements ExerciseService {
         exercise.getTags().add(tag);
         exerciseRepository.save(exercise);
         log.info(String.format("Tag %s added successfully to exercise with ID: %s", tag.getName(), exerciseId));
+    }
+
+    @Override
+    public Page<ExerciseDto> findAll(@RequestBody ExerciseFilterOption options) {
+        BooleanBuilder builder = new BooleanBuilder();
+        final QExercise qExercise = QExercise.exercise;
+        return doYourJob(qExercise, builder, options);
+    }
+
+    private Page<ExerciseDto> doYourJob(QExercise qExercise, BooleanBuilder builder, ExerciseFilterOption options) {
+        int page = 0, limit = 10;
+
+        if(options == null) {
+            return exerciseRepository.findAll(builder, PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "CreatedDate", "id")))
+                    .map(exercise -> modelMapper.map(exercise, ExerciseDto.class));
+        } else {
+            page = (options.getPage() != null) ? options.getPage() : page;
+            limit = (options.getLimit() != null) ? options.getLimit() : limit;
+            if(options.getTitle() != null) builder.and(qExercise.title.containsIgnoreCase(options.getTitle()));
+            if(options.getDifficulty() != null) builder.and(qExercise.difficulty.eq(options.getDifficulty()));
+            if(options.getStatus() != null) builder.and(qExercise.status.eq(options.getStatus()));
+            if(options.getTimerInMinute() != null) builder.and(qExercise.timerInMinute.between(0, options.getTimerInMinute()));
+            if (options.getProgrammingLanguage() != null) builder.and(qExercise.programmingLanguage.name.containsIgnoreCase(options.getProgrammingLanguage()));
+            Sort.Direction direction = (options.getOrder().equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, options.getProperties()));
+            return (builder.getValue() != null) ? exerciseRepository.findAll(builder, pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class)) : exerciseRepository.findAll(pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class));
+        }
     }
 }

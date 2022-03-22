@@ -1,5 +1,6 @@
 package com.proxym.yacine.codintest.controller;
 
+import com.proxym.yacine.codintest.dto.ExerciseFilterOption;
 import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
 import com.proxym.yacine.codintest.dto.request.NewTagForExerciseRequest;
 import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
@@ -9,6 +10,7 @@ import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
 import com.proxym.yacine.codintest.service.ExerciseService;
 import com.proxym.yacine.codintest.util.Routes;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
@@ -30,10 +32,13 @@ public class ExerciseController {
         return new ResponseEntity<>("New Exercise is created", HttpStatus.CREATED);
     }
 
+//    public ResponseEntity<List<ExerciseDto>> getAll() {
+//        List<ExerciseDto> exercises = exerciseService.getAll();
+//        return new ResponseEntity<>(exercises, HttpStatus.OK);
+//    }
     @GetMapping("")
-    public ResponseEntity<List<ExerciseDto>> getAll() {
-        List<ExerciseDto> exercises = exerciseService.getAll();
-        return new ResponseEntity<>(exercises, HttpStatus.OK);
+    public Page<ExerciseDto> getAllExercises(@RequestBody ExerciseFilterOption options){
+        return exerciseService.findAll(options);
     }
 
     @GetMapping("/{id}")
