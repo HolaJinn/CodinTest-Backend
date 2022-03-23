@@ -6,6 +6,4 @@ import lombok.Data;
 public class NewRecruiter extends NewAppUser{
 
     private String roleInCompany;
-    private Long company;
-
 }

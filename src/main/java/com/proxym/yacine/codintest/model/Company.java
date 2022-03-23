@@ -31,6 +31,6 @@ public class Company {
 
     @OneToOne
     @JoinColumn(name = "owner_id")
-    private Owner owner;
+    private AppUser owner;
 
 }
