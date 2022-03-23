@@ -11,6 +11,7 @@ import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.repository.*;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.ExerciseService;
+import com.proxym.yacine.codintest.util.ExerciseStatus;
 import com.proxym.yacine.codintest.util.Order;
 import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +68,7 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public ExerciseDto findById(Long id) {
-        Exercise exercise =exerciseRepository.findById(id).orElseThrow(
+        Exercise exercise = exerciseRepository.findById(id).orElseThrow(
                 () -> new CustomException("No Exercise found with such ID", "EXERCISE NOT FOUND", 400));
         return modelMapper.map(exercise, ExerciseDto.class);
     }
@@ -113,9 +114,14 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public void addTestCase(NewTestCaseRequest newTestCaseRequest) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+
         Exercise exercise = exerciseRepository.findById(newTestCaseRequest.getExerciseId())
                 .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
 
+        if(exercise.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
         TestCase testCase = TestCase.builder()
                 .exercise(exercise)
                 .name(newTestCaseRequest.getName())
@@ -138,8 +144,14 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public void addTag(Long exerciseId, Integer tagId) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+
+        if (exercise.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
 
         if(!tagRepository.existsById(tagId)) {
             throw new CustomException("No tag found with such ID", "TAG NOT FOUND", 404);
@@ -151,6 +163,9 @@ public class ExerciseServiceImpl implements ExerciseService {
         log.info(String.format("Tag %s added successfully to exercise with ID: %s", tag.getName(), exerciseId));
     }
 
+    /**
+     * This method allows receiving pages of exercises with filters optionally
+     */
     @Override
     public Page<ExerciseDto> findAll(@RequestBody ExerciseFilterOption options) {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
@@ -170,35 +185,14 @@ public class ExerciseServiceImpl implements ExerciseService {
             limit = (options.getLimit() != null) ? options.getLimit() : limit;
             if(options.getTitle() != null) builder.and(qExercise.title.containsIgnoreCase(options.getTitle()));
             if(options.getDifficulty() != null) builder.and(qExercise.difficulty.eq(options.getDifficulty()));
-            if(options.getStatus() != null) {
-                if(options.getStatus().name().equalsIgnoreCase("PRIVATE")) {
-                    System.out.println(options.getStatus().name());
-//                    if (user.getRole().getId().intValue() == 2) {
-//                        builder.and(qExercise.creator.id.eq(user.getId()));
-//                        Company company = companyRepository.getCompanyByOwnerId(user.getId());
-//                        List<Recruiter> recruiters = recruiterRepository.findAllByCompanyId(company.getId());
-//                        if(!recruiters.isEmpty()) {
-//                            for(int i = 0; i < recruiters.size(); i++) {
-//                                builder.and(qExercise.creator.id.eq(recruiters.get(i).getId()));
-//                            }
-//                        }
-//                        //TODO Finish this method later
-//                    }
-//                    if (user.getRole().getId().intValue() == 3) {
-//                        builder.and(qExercise.creator.id.eq(user.getId()));
-//                        System.out.println(user);
-//                        Company company = companyRepository.getCompanyByOwnerId(user.getId());
-//                        List<Recruiter> recruiters = recruiterRepository.findAllByCompanyId(company.getId());
-//                        if(!recruiters.isEmpty()) {
-//                            for(int i = 0; i < recruiters.size(); i++) {
-//                                builder.and(qExercise.creator.id.eq(recruiters.get(i).getId()));
-//                            }
-//                        }
-//                        //TODO Finish this method later
-//                    }
-                } else {
-                    builder.and(qExercise.status.eq(options.getStatus()));
-                }
+            if(options.getStatus().name().equalsIgnoreCase("PRIVATE")) {
+                builder.and(qExercise.company.id.eq(user.getCompany().getId()));
+
+            } else if(options.getStatus().name().equalsIgnoreCase("PUBLIC")) {
+                builder.and(qExercise.status.eq(options.getStatus()));
+            } else {
+                builder.and(qExercise.status.eq(ExerciseStatus.PUBLIC));
+                builder.and(qExercise.company.id.eq(user.getCompany().getId()));
             }
             if(options.getTimerInMinute() != null) builder.and(qExercise.timerInMinute.between(0, options.getTimerInMinute()));
             if (options.getProgrammingLanguage() != null) builder.and(qExercise.programmingLanguage.name.containsIgnoreCase(options.getProgrammingLanguage()));

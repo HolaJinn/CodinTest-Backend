@@ -1,17 +1,11 @@
 package com.proxym.yacine.codintest.dto.request;
 
-import com.proxym.yacine.codintest.exception.CustomException;
-import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.util.ExerciseDifficulty;
 import com.proxym.yacine.codintest.util.ExerciseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @Data
 @AllArgsConstructor

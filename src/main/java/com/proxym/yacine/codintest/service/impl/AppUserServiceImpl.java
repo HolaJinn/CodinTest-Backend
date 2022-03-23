@@ -193,6 +193,10 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
         log.info(String.format("Registration success for user { email: %s } at %s",newCompanyOwner.getEmail(), LocalDateTime.now().toString()));
     }
 
+
+    /*
+    * This method allow the company owner to create a new recruiter and save it to it's related company
+    * */
     @Override
     public void saveRecruiter(NewRecruiter newRecruiter,String siteURL) throws MessagingException, UnsupportedEncodingException {
         AppUser owner = getCurrentAuthenticatedUser();

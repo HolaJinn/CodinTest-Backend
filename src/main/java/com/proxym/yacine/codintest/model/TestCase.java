@@ -1,5 +1,6 @@
 package com.proxym.yacine.codintest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,5 +32,6 @@ public class TestCase extends Auditable{
 
     @ManyToOne
     @JoinColumn(name = "execise_id")
+    @JsonIgnore
     private Exercise exercise;
 }
