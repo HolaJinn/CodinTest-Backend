@@ -1,6 +1,7 @@
 package com.proxym.yacine.codintest.dto.response;
 
 import com.proxym.yacine.codintest.exception.CustomException;
+import com.proxym.yacine.codintest.model.Company;
 import com.proxym.yacine.codintest.model.Exercise;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,4 +23,5 @@ public class ExerciseDto {
     private Integer timerInMinute;
     private String programmingLanguage;
     private String initialCode;
+    private Company company;
 }

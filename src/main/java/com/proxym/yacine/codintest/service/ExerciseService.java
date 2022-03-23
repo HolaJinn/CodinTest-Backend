@@ -17,6 +17,6 @@ public interface ExerciseService {
     List<TestCaseResponse> getAllTestCases(Long exerciseId);
     void addTestCase(NewTestCaseRequest newTestCaseRequest);
     List<TagResponse> getAllTags(Long exerciseId);
-    void addTag(Long exerciseId, Long tagId);
+    void addTag(Long exerciseId, Integer tagId);
     Page<ExerciseDto> findAll(ExerciseFilterOption options);
 }

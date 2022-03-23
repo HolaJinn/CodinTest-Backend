@@ -68,12 +68,21 @@ public class CodintestApplication implements CommandLineRunner {
 		ProgrammingLanguage java = new ProgrammingLanguage(null, "JAVA");
 		ProgrammingLanguage cpp = new ProgrammingLanguage(null, "C++");
 
-		programmingLanguageRepository.save(java);
-		programmingLanguageRepository.save(cpp);
+		if (!programmingLanguageRepository.existsById(1)) {
+			programmingLanguageRepository.save(java);
+		}
+		if (!programmingLanguageRepository.existsById(2)) {
+			programmingLanguageRepository.save(cpp);
+		}
 
 		Tag string = new Tag(null, "String", "This tag is for string type of exercises");
 		Tag array = new Tag(null, "Array", "This tag is for array type of exercises");
-		tagRepository.save(string);
-		tagRepository.save(array);
+		if (!tagRepository.existsById(1)) {
+			tagRepository.save(string);
+		}
+		if (!tagRepository.existsById(2)) {
+			tagRepository.save(array);
+		}
+
 	}
 }

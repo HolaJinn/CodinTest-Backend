@@ -99,6 +99,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .difficulty(newExerciseRequest.getDifficulty())
                 .status(newExerciseRequest.getStatus())
                 .timerInMinute(newExerciseRequest.getTimerInMinute())
+                .company(user.getCompany())
                 .build();
         exerciseRepository.save(exercise);
     }
@@ -136,7 +137,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public void addTag(Long exerciseId, Long tagId) {
+    public void addTag(Long exerciseId, Integer tagId) {
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
 
@@ -203,7 +204,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             if (options.getProgrammingLanguage() != null) builder.and(qExercise.programmingLanguage.name.containsIgnoreCase(options.getProgrammingLanguage()));
             if (options.getTags() != null) {
                 for(int i = 0; i < options.getTags().size(); i++) {
-                    builder.and(qExercise.tags.any().id.eq(options.getTags().get(i)));
+                    builder.and(qExercise.tags.any().id.eq(Math.toIntExact(options.getTags().get(i))));
                 }
             }
             Sort.Direction direction = (options.getOrder().equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;

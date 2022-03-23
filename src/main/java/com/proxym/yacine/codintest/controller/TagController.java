@@ -26,7 +26,7 @@ public class TagController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TagResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<TagResponse> getById(@PathVariable Integer id) {
         TagResponse tag = tagService.findById(id);
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }

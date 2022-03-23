@@ -9,6 +9,6 @@ public interface TagService {
 
     void createTag(NewTagRequest newTagRequest);
     List<TagResponse> getAllTags();
-    TagResponse findById(Long id);
+    TagResponse findById(Integer id);
     TagResponse findByName(String name);
 }

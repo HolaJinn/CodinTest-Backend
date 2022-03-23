@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface ProgrammingLanguageRepository extends JpaRepository<ProgrammingLanguage, Long> {
+public interface ProgrammingLanguageRepository extends JpaRepository<ProgrammingLanguage, Integer> {
 
     Optional<ProgrammingLanguage> findByName(String name);
     boolean existsByName(String name);

@@ -19,7 +19,6 @@ import java.util.List;
 @Builder
 public class NewExerciseRequest {
 
-    private Long creatorId;
     private String title;
     private String description;
     private ExerciseDifficulty difficulty;

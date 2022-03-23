@@ -53,7 +53,4 @@ public class AppUser extends Auditable {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @OneToMany
-    private List<Exercise> exercises;
-
 }

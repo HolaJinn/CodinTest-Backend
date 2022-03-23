@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class NewTagForExerciseRequest {
 
     private Long exerciseId;
-    private Long tagId;
+    private Integer tagId;
 }

@@ -8,8 +8,8 @@ import java.util.List;
 public interface ProgrammingLanguageService {
 
     List<ProgrammingLanguageDto> getAll();
-    ProgrammingLanguageDto findById(Long id);
+    ProgrammingLanguageDto findById(Integer id);
     ProgrammingLanguageDto findByName(String name);
     void create (NewProgrammingLanguageRequest newProgrammingLanguageRequest);
-    void delete(Long id);
+    void delete(Integer id);
 }

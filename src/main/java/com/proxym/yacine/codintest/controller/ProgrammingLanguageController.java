@@ -26,7 +26,7 @@ public class ProgrammingLanguageController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProgrammingLanguageDto> getById(@PathVariable Long id) {
+    public ResponseEntity<ProgrammingLanguageDto> getById(@PathVariable Integer id) {
         ProgrammingLanguageDto programmingLanguage = service.findById(id);
         return new ResponseEntity<>(programmingLanguage, HttpStatus.OK);
     }
@@ -44,7 +44,7 @@ public class ProgrammingLanguageController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
         service.delete(id);
         return new ResponseEntity<>("Programming Language deleted successfully", HttpStatus.OK);
     }

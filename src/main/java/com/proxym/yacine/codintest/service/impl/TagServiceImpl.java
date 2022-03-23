@@ -43,7 +43,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public TagResponse findById(Long id) {
+    public TagResponse findById(Integer id) {
         return modelMapper.map(repository.findById(id), TagResponse.class);
     }
 

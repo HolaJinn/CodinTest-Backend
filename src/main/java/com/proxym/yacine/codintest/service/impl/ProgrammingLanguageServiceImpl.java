@@ -33,7 +33,7 @@ public class ProgrammingLanguageServiceImpl implements ProgrammingLanguageServic
     }
 
     @Override
-    public ProgrammingLanguageDto findById(Long id) {
+    public ProgrammingLanguageDto findById(Integer id) {
         ProgrammingLanguage programmingLanguage = repository.findById(id).orElseThrow(
                 () -> new CustomException("No programming language found with such ID", "PROGRAMMING LANGUAGE NOT FOUND", 404)
         );
@@ -57,7 +57,7 @@ public class ProgrammingLanguageServiceImpl implements ProgrammingLanguageServic
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         if (!repository.existsById(id)) {
             throw new CustomException("No programming language found with such ID", "PROGRAMMING LANGUAGE NOT FOUND", 404);
         }
