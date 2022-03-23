@@ -57,4 +57,8 @@ public class Exercise extends Auditable {
             inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
     )
     private Collection<Tag> tags = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 }

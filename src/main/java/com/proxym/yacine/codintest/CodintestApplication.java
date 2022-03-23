@@ -1,7 +1,11 @@
 package com.proxym.yacine.codintest;
 
+import com.proxym.yacine.codintest.model.ProgrammingLanguage;
 import com.proxym.yacine.codintest.model.Role;
+import com.proxym.yacine.codintest.model.Tag;
+import com.proxym.yacine.codintest.repository.ProgrammingLanguageRepository;
 import com.proxym.yacine.codintest.repository.RoleRepository;
+import com.proxym.yacine.codintest.repository.TagRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -19,6 +23,12 @@ public class CodintestApplication implements CommandLineRunner {
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	@Autowired
+	private TagRepository tagRepository;
+
+	@Autowired
+	private ProgrammingLanguageRepository programmingLanguageRepository;
 
 	@Bean
 	public ModelMapper modelMapper() {
@@ -54,5 +64,16 @@ public class CodintestApplication implements CommandLineRunner {
 		if (!roleRepository.existsById(4)) {
 			roleRepository.save(candidate);
 		}
+
+		ProgrammingLanguage java = new ProgrammingLanguage(null, "JAVA");
+		ProgrammingLanguage cpp = new ProgrammingLanguage(null, "C++");
+
+		programmingLanguageRepository.save(java);
+		programmingLanguageRepository.save(cpp);
+
+		Tag string = new Tag(null, "String", "This tag is for string type of exercises");
+		Tag array = new Tag(null, "Array", "This tag is for array type of exercises");
+		tagRepository.save(string);
+		tagRepository.save(array);
 	}
 }

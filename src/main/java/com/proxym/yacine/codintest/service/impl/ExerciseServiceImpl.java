@@ -8,10 +8,7 @@ import com.proxym.yacine.codintest.dto.response.TagResponse;
 import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
 import com.proxym.yacine.codintest.exception.CustomException;
 import com.proxym.yacine.codintest.model.*;
-import com.proxym.yacine.codintest.repository.ExerciseRepository;
-import com.proxym.yacine.codintest.repository.ProgrammingLanguageRepository;
-import com.proxym.yacine.codintest.repository.TagRepository;
-import com.proxym.yacine.codintest.repository.TestCaseRepository;
+import com.proxym.yacine.codintest.repository.*;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.ExerciseService;
 import com.proxym.yacine.codintest.util.Order;
@@ -52,6 +49,12 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    @Autowired
+    private RecruiterRepository recruiterRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -151,12 +154,13 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public Page<ExerciseDto> findAll(@RequestBody ExerciseFilterOption options) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
         BooleanBuilder builder = new BooleanBuilder();
         final QExercise qExercise = QExercise.exercise;
-        return doYourJob(qExercise, builder, options);
+        return doYourJob(qExercise, builder, options, user);
     }
 
-    private Page<ExerciseDto> doYourJob(QExercise qExercise, BooleanBuilder builder, ExerciseFilterOption options) {
+    private Page<ExerciseDto> doYourJob(QExercise qExercise, BooleanBuilder builder, ExerciseFilterOption options, AppUser user) {
         int page = 0, limit = 10;
 
         if(options == null) {
@@ -167,7 +171,36 @@ public class ExerciseServiceImpl implements ExerciseService {
             limit = (options.getLimit() != null) ? options.getLimit() : limit;
             if(options.getTitle() != null) builder.and(qExercise.title.containsIgnoreCase(options.getTitle()));
             if(options.getDifficulty() != null) builder.and(qExercise.difficulty.eq(options.getDifficulty()));
-            if(options.getStatus() != null) builder.and(qExercise.status.eq(options.getStatus()));
+            if(options.getStatus() != null) {
+                if(options.getStatus().name().equalsIgnoreCase("PRIVATE")) {
+                    System.out.println(options.getStatus().name());
+                    if (user.getRole().getId().intValue() == 2) {
+                        builder.and(qExercise.creator.id.eq(user.getId()));
+                        Company company = companyRepository.getCompanyByOwnerId(user.getId());
+                        List<Recruiter> recruiters = recruiterRepository.findAllByCompanyId(company.getId());
+                        if(!recruiters.isEmpty()) {
+                            for(int i = 0; i < recruiters.size(); i++) {
+                                builder.and(qExercise.creator.id.eq(recruiters.get(i).getId()));
+                            }
+                        }
+                        //TODO Finish this method later
+                    }
+                    if (user.getRole().getId().intValue() == 3) {
+                        builder.and(qExercise.creator.id.eq(user.getId()));
+                        System.out.println(user);
+                        Company company = companyRepository.getCompanyByOwnerId(user.getId());
+                        List<Recruiter> recruiters = recruiterRepository.findAllByCompanyId(company.getId());
+                        if(!recruiters.isEmpty()) {
+                            for(int i = 0; i < recruiters.size(); i++) {
+                                builder.and(qExercise.creator.id.eq(recruiters.get(i).getId()));
+                            }
+                        }
+                        //TODO Finish this method later
+                    }
+                } else {
+                    builder.and(qExercise.status.eq(options.getStatus()));
+                }
+            }
             if(options.getTimerInMinute() != null) builder.and(qExercise.timerInMinute.between(0, options.getTimerInMinute()));
             if (options.getProgrammingLanguage() != null) builder.and(qExercise.programmingLanguage.name.containsIgnoreCase(options.getProgrammingLanguage()));
             if (options.getTags() != null) {
