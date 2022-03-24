@@ -79,4 +79,10 @@ public class ExerciseController {
         exerciseService.addTag(newTagForExerciseRequest.getExerciseId(), newTagForExerciseRequest.getTagId());
         return new ResponseEntity<>("Tag is added to the exercise", HttpStatus.OK);
     }
+
+    @DeleteMapping("/tags")
+    public ResponseEntity<?> removeTag(@RequestBody NewTagForExerciseRequest tagExerciseRequest) {
+        exerciseService.deleteTag(tagExerciseRequest.getExerciseId(), tagExerciseRequest.getTagId());
+        return new ResponseEntity<>("Tag is deleted from the exercise", HttpStatus.OK);
+    }
 }

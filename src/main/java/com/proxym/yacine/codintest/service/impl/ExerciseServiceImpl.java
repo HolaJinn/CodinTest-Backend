@@ -217,6 +217,30 @@ public class ExerciseServiceImpl implements ExerciseService {
         log.info(String.format("Tag %s added successfully to exercise with ID: %s", tag.getName(), exerciseId));
     }
 
+    @Override
+    public void deleteTag(Long exerciseId, Integer tagId) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+
+        if (exercise.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
+
+        if(!tagRepository.existsById(tagId)) {
+            throw new CustomException("No tag found with such ID", "TAG NOT FOUND", 404);
+        }
+        Tag tag = tagRepository.getById(tagId);
+        if(!exercise.getTags().contains(tag)) {
+            throw new CustomException("This tag does not exist on that exercise", "TAG NOT FOUND", 404);
+        } else {
+            exercise.getTags().remove(tag);
+            exerciseRepository.save(exercise);
+            log.info(String.format("Tag %s removed successfully from exercise with ID: %s", tag.getName(), exerciseId));
+        }
+    }
+
     /**
      * This method allows receiving pages of exercises with filters optionally
      */
