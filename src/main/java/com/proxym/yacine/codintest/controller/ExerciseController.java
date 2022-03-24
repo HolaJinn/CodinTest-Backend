@@ -57,9 +57,9 @@ public class ExerciseController {
         return new ResponseEntity<>("Exercise deleted successfully", HttpStatus.OK);
     }
 
-    @GetMapping("/test-cases/{id}")
-    public ResponseEntity<List<TestCaseResponse>> getAllTestCases(@PathVariable Long id) {
-        List<TestCaseResponse> testCases = exerciseService.getAllTestCases(id);
+    @GetMapping("/{exerciseId}/test-cases")
+    public ResponseEntity<List<TestCaseResponse>> getAllTestCases(@PathVariable Long exerciseId) {
+        List<TestCaseResponse> testCases = exerciseService.getAllTestCases(exerciseId);
         return new ResponseEntity<>(testCases, HttpStatus.OK);
     }
 
@@ -75,27 +75,27 @@ public class ExerciseController {
         return new ResponseEntity<>("Test case is updated successefully", HttpStatus.OK);
     }
 
-    @DeleteMapping("/test-cases")
-    public ResponseEntity<?> deleteTestCase(@RequestBody TestCaseExerciseRequest testCaseExerciseRequest) {
-        exerciseService.deleteTestCase(testCaseExerciseRequest.getExerciseId(), testCaseExerciseRequest.getTestCaseId());
+    @DeleteMapping("/{exerciseId}/test-cases/{testCaseId}")
+    public ResponseEntity<?> deleteTestCase(@PathVariable Long exerciseId, @PathVariable Long testCaseId) {
+        exerciseService.deleteTestCase(exerciseId, testCaseId);
         return new ResponseEntity<>("Test case is deleted from the exercise", HttpStatus.OK);
     }
 
-    @GetMapping("/tags/{id}")
+    @GetMapping("/{id}/tags")
     public ResponseEntity<List<TagResponse>> getAllTags(@PathVariable Long id) {
         List<TagResponse> tags = exerciseService.getAllTags(id);
         return new ResponseEntity<>(tags, HttpStatus.OK);
     }
 
-    @PostMapping("/tags")
-    public ResponseEntity<?> addTag(@RequestBody NewTagForExerciseRequest newTagForExerciseRequest) {
-        exerciseService.addTag(newTagForExerciseRequest.getExerciseId(), newTagForExerciseRequest.getTagId());
+    @PostMapping("/{exerciseId}/tags")
+    public ResponseEntity<?> addTag(@PathVariable Long exerciseId,@RequestBody NewTagForExerciseRequest newTagForExerciseRequest) {
+        exerciseService.addTag(exerciseId, newTagForExerciseRequest.getTagId());
         return new ResponseEntity<>("Tag is added to the exercise", HttpStatus.OK);
     }
 
-    @DeleteMapping("/tags")
-    public ResponseEntity<?> removeTag(@RequestBody NewTagForExerciseRequest tagExerciseRequest) {
-        exerciseService.deleteTag(tagExerciseRequest.getExerciseId(), tagExerciseRequest.getTagId());
+    @DeleteMapping("/{exerciseId}/tags/{tagId}")
+    public ResponseEntity<?> removeTag(@PathVariable Long exerciseId, @PathVariable Integer tagId) {
+        exerciseService.deleteTag(exerciseId, tagId);
         return new ResponseEntity<>("Tag is deleted from the exercise", HttpStatus.OK);
     }
 }
