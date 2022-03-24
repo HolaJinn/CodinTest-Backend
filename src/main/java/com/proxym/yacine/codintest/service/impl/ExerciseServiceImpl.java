@@ -11,6 +11,7 @@ import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.repository.*;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.ExerciseService;
+import com.proxym.yacine.codintest.util.ExerciseDifficulty;
 import com.proxym.yacine.codintest.util.ExerciseStatus;
 import com.proxym.yacine.codintest.util.Order;
 import com.querydsl.core.BooleanBuilder;
@@ -27,6 +28,7 @@ import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.proxym.yacine.codintest.model.QTag.tag;
@@ -57,14 +59,6 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Autowired
     private ModelMapper modelMapper;
-
-    @Override
-    public List<ExerciseDto> getAll() {
-
-        return exerciseRepository.findAll().stream()
-                .map(exercise -> modelMapper.map(exercise, ExerciseDto.class))
-                .collect(Collectors.toList());
-    }
 
     @Override
     public ExerciseDto findById(Long id) {
@@ -103,6 +97,66 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .company(user.getCompany())
                 .build();
         exerciseRepository.save(exercise);
+    }
+
+    @Override
+    public void updateExercise(Long exerciseId, Map<String, Object> changes) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+
+        if(exercise.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
+        try {
+            changes.forEach((key, value) -> {
+                switch (key) {
+                    case "title" : {
+                        exercise.setTitle((String) value);
+                        break;
+                    }
+                    case "description": {
+                        exercise.setDescription((String) value);
+                        break;
+                    }
+                    case "difficulty": {
+                        if (value.toString().equals(ExerciseDifficulty.EASY.name())) {
+                            exercise.setDifficulty(ExerciseDifficulty.EASY);
+                        } else if (value.toString().equals(ExerciseDifficulty.MEDIUM.name())) {
+                            exercise.setDifficulty(ExerciseDifficulty.MEDIUM);
+                        } else if (value.toString().equals(ExerciseDifficulty.HARD.name())) {
+                            exercise.setDifficulty(ExerciseDifficulty.HARD);
+                        }
+                        break;
+                    }
+                    case "status" : {
+                        if (value.toString().equals(ExerciseStatus.PUBLIC.name())) {
+                            exercise.setStatus(ExerciseStatus.PUBLIC);
+                        } else if(value.toString().equals(ExerciseStatus.PRIVATE.name())) {
+                            exercise.setStatus(ExerciseStatus.PRIVATE);
+                        }
+                        break;
+                    }
+                }
+            });
+            exerciseRepository.save(exercise);
+            log.info(String.format("Exercise with ID %s is updated successfully", exerciseId));
+        } catch (Exception e) {
+            throw new CustomException("Can't update with invalid resource", e.getMessage(), 400);
+        }
+    }
+
+    @Override
+    public void deleteExercise(Long exerciseId) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+
+        if(exercise.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
+        exerciseRepository.delete(exercise);
+        log.info(String.format("Exercise with ID %s is deleted successfully", exerciseId));
     }
 
     @Override

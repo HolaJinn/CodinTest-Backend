@@ -20,7 +20,4 @@ public class NewExerciseRequest {
     private Integer timerInMinute;
     private String programmingLanguage;
     private String initialCode;
-
-    //TODO change these two to their DTOs
-//    private Collection<Tag> tags = new ArrayList<>();
 }

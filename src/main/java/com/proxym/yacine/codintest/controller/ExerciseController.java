@@ -17,6 +17,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -32,10 +33,6 @@ public class ExerciseController {
         return new ResponseEntity<>("New Exercise is created", HttpStatus.CREATED);
     }
 
-//    public ResponseEntity<List<ExerciseDto>> getAll() {
-//        List<ExerciseDto> exercises = exerciseService.getAll();
-//        return new ResponseEntity<>(exercises, HttpStatus.OK);
-//    }
     @GetMapping("")
     public Page<ExerciseDto> getAllExercises(@RequestBody ExerciseFilterOption options){
         return exerciseService.findAll(options);
@@ -45,6 +42,18 @@ public class ExerciseController {
     public ResponseEntity<ExerciseDto> getById(@PathVariable Long id) {
         ExerciseDto exercise = exerciseService.findById(id);
         return new ResponseEntity<>(exercise, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateExercise(@PathVariable Long id, @RequestBody Map<String, Object> changes) {
+        exerciseService.updateExercise(id, changes);
+        return new ResponseEntity<>("Exercise updated successfully", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable Long id) {
+        exerciseService.deleteExercise(id);
+        return new ResponseEntity<>("Exercise deleted successfully", HttpStatus.OK);
     }
 
     @GetMapping("/test-cases/{id}")
