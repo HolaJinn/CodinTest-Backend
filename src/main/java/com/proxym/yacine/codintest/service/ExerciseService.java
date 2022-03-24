@@ -19,6 +19,8 @@ public interface ExerciseService {
     void deleteExercise(Long exerciseId);
     List<TestCaseResponse> getAllTestCases(Long exerciseId);
     void addTestCase(NewTestCaseRequest newTestCaseRequest);
+    void updateTestCase(Long exerciseId, Long testCaseId, Map<String, Object> changes);
+    void deleteTestCase(Long exerciseId, Long testCaseId);
     List<TagResponse> getAllTags(Long exerciseId);
     void addTag(Long exerciseId, Integer tagId);
     void deleteTag(Long exerciseId, Integer tagId);

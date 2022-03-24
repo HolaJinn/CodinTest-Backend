@@ -4,6 +4,7 @@ import com.proxym.yacine.codintest.dto.ExerciseFilterOption;
 import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
 import com.proxym.yacine.codintest.dto.request.NewTagForExerciseRequest;
 import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
+import com.proxym.yacine.codintest.dto.request.TestCaseExerciseRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TagResponse;
 import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
@@ -66,6 +67,18 @@ public class ExerciseController {
     public ResponseEntity<?> addTestCase(@RequestBody NewTestCaseRequest newTestCaseRequest) {
         exerciseService.addTestCase(newTestCaseRequest);
         return new ResponseEntity<>("New test case is added to the exercise", HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{exerciseId}/test-cases/{testCaseId}")
+    public ResponseEntity<?> updateTestCase(@PathVariable Long exerciseId, @PathVariable Long testCaseId, @RequestBody Map<String, Object> changes){
+        exerciseService.updateTestCase(exerciseId, testCaseId, changes);
+        return new ResponseEntity<>("Test case is updated successefully", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/test-cases")
+    public ResponseEntity<?> deleteTestCase(@RequestBody TestCaseExerciseRequest testCaseExerciseRequest) {
+        exerciseService.deleteTestCase(testCaseExerciseRequest.getExerciseId(), testCaseExerciseRequest.getTestCaseId());
+        return new ResponseEntity<>("Test case is deleted from the exercise", HttpStatus.OK);
     }
 
     @GetMapping("/tags/{id}")

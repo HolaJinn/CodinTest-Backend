@@ -119,6 +119,20 @@ public class ExerciseServiceImpl implements ExerciseService {
                         exercise.setDescription((String) value);
                         break;
                     }
+                    case "initialCode": {
+                        exercise.setInitialCode((String) value);
+                        break;
+                    }
+                    case "programmingLanguage" : {
+                        ProgrammingLanguage programmingLanguage = programmingLanguageRepository.findByName((String) value)
+                                .orElseThrow(() -> new CustomException("There is no programming language with such name", "PROGRAMMING LANGUAGE NOT FOUND", 404));
+                        exercise.setProgrammingLanguage(programmingLanguage);
+                        break;
+                    }
+                    case "timerInMinute": {
+                        exercise.setTimerInMinute((Integer) value);
+                        break;
+                    }
                     case "difficulty": {
                         if (value.toString().equals(ExerciseDifficulty.EASY.name())) {
                             exercise.setDifficulty(ExerciseDifficulty.EASY);
@@ -187,6 +201,73 @@ public class ExerciseServiceImpl implements ExerciseService {
         exercise.getTestCases().add(testCase);
         testCaseRepository.save(testCase);
         exerciseRepository.save(exercise);
+    }
+
+    @Override
+    public void updateTestCase(Long exerciseId, Long testCaseId, Map<String, Object> changes) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+
+        if(exercise.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
+
+        TestCase testCase = testCaseRepository.findById(testCaseId).orElseThrow(() -> new CustomException("There is no test case with such ID", "TEST CASE NOT FOUND", 404));
+
+        try{
+            changes.forEach((key, value) ->  {
+                switch (key) {
+                    case "name": {
+                        testCase.setName((String) value);
+                        break;
+                    }
+                    case "score": {
+                        testCase.setScore(Long.valueOf((Integer) value));
+                        break;
+                    }
+                    case "input": {
+                        testCase.setInput((String) value);
+                        break;
+                    }
+                    case "expectedOutput": {
+                        testCase.setExpectedOutput((String) value);
+                        break;
+                    }
+                    case "isSample": {
+                        testCase.setSample((Boolean) value);
+                        break;
+                    }
+                }
+            });
+            testCaseRepository.save(testCase);
+            log.info(String.format("Test case with ID %s is successfully updated", testCaseId));
+        } catch (Exception e) {
+            throw new CustomException("Something went wrong", e.getMessage(), 400);
+        }
+    }
+
+    @Override
+    public void deleteTestCase(Long exerciseId, Long testCaseId) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+
+        if(exercise.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
+
+        TestCase testCase = testCaseRepository.findById(testCaseId).orElseThrow(() -> new CustomException("There is no test case with such ID", "TEST CASE NOT FOUND", 404));
+        if (!exercise.getTestCases().contains(testCase)) {
+            throw new CustomException("This test case doesn't exist on that exercise", "TEST CASE NOT FOUND", 404);
+        } else {
+            testCaseRepository.delete(testCase);
+            exercise.getTestCases().remove(testCase);
+            exerciseRepository.save(exercise);
+            log.info(String.format("Test case %s removed successfully from exercise with ID: %s", testCaseId, exerciseId));
+        }
     }
 
     @Override
