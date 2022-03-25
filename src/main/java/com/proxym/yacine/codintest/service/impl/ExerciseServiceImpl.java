@@ -326,7 +326,7 @@ public class ExerciseServiceImpl implements ExerciseService {
      * This method allows receiving pages of exercises with filters optionally
      */
     @Override
-    public Page<ExerciseDto> findAll(@RequestBody ExerciseFilterOption options) {
+    public Page<ExerciseDto> findAll(ExerciseFilterOption options) {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
         BooleanBuilder builder = new BooleanBuilder();
         final QExercise qExercise = QExercise.exercise;

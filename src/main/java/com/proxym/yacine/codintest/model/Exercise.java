@@ -46,7 +46,7 @@ public class Exercise extends Auditable {
     @Column(name = "initial_code")
     private String initialCode;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TestCase> testCases;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {
@@ -61,4 +61,8 @@ public class Exercise extends Auditable {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "technical_test_id")
+//    private TechnicalTest technicalTest;
 }
