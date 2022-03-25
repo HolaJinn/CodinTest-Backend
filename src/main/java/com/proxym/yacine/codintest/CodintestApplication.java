@@ -61,11 +61,6 @@ public class CodintestApplication implements CommandLineRunner {
 		SpringApplication.run(CodintestApplication.class, args);
 	}
 
-//	@Bean
-//	public BCryptPasswordEncoder passwordEncoder(){
-//		return new BCryptPasswordEncoder() ;
-//	}
-
 	@Override
 	public void run(String... args) throws Exception {
 

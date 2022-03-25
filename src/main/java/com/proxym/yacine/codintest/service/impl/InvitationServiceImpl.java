@@ -105,11 +105,60 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Override
     public void update(Long invitationId, Map<String, Object> changes) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        if (!user.isVerified()) {
+            throw new CustomException("You should verify your account first","NOT VERIFIED", 400);
+        }
 
+        if (user.getRole().getId().intValue() == 4){
+            throw new CustomException("You are not allowed to create technical tests", "UNAUTHORIZED", 403);
+        }
+
+        Invitation invitation = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new CustomException("There is no invitation with such ID", "TECHNICAL TEST NOT FOUND", 404));
+        try {
+            changes.forEach((key, value) -> {
+                switch (key) {
+                    case "subject" : {
+                        invitation.setSubject((String) value);
+                        break;
+                    }
+                    case "expirationDate": {
+                        invitation.setExpirationDate((LocalDateTime) value);
+                        break;
+                    }
+                    case "state": {
+                        invitation.setState((InvitationState) value);
+                        break;
+                    }
+                    case "rating": {
+                        invitation.setRating((Integer) value);
+                        break;
+                    }
+                }
+            });
+            invitationRepository.save(invitation);
+            log.info(String.format("Invitation with ID %s is updated successfully", invitationId));
+        } catch(Exception e) {
+            throw new CustomException("Something went wrong", e.getMessage(), 400);
+        }
     }
 
     @Override
     public void delete(Long invitationId) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        if (!user.isVerified()) {
+            throw new CustomException("You should verify your account first","NOT VERIFIED", 400);
+        }
 
+        if (user.getRole().getId().intValue() == 4){
+            throw new CustomException("You are not allowed to create technical tests", "UNAUTHORIZED", 403);
+        }
+        System.out.println(invitationId);
+        Invitation invitation = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new CustomException("There is no invitation with such ID", "TECHNICAL TEST NOT FOUND", 404));
+        System.out.println(invitation);
+        invitationRepository.delete(invitation);
+        log.info(String.format("Invitation with ID %s is deleted successfully", invitationId));
     }
 }
