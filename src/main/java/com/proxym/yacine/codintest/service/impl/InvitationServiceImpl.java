@@ -23,7 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -154,10 +153,8 @@ public class InvitationServiceImpl implements InvitationService {
         if (user.getRole().getId().intValue() == 4){
             throw new CustomException("You are not allowed to create technical tests", "UNAUTHORIZED", 403);
         }
-        System.out.println(invitationId);
         Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new CustomException("There is no invitation with such ID", "TECHNICAL TEST NOT FOUND", 404));
-        System.out.println(invitation);
         invitationRepository.delete(invitation);
         log.info(String.format("Invitation with ID %s is deleted successfully", invitationId));
     }
