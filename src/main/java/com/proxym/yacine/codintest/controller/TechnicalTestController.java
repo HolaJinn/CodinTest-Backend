@@ -57,4 +57,10 @@ public class TechnicalTestController {
         technicalTestService.addExercise(id, exerciseId);
         return new ResponseEntity<>("Exercise added to technical test successfully", HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}/exercises/{exerciseId}")
+    public ResponseEntity<?> removeExercise(@PathVariable Long id, @PathVariable Long exerciseId) {
+        technicalTestService.removeExercise(id,exerciseId);
+        return new ResponseEntity<>("Exercise removed from technical test successfully", HttpStatus.OK);
+    }
 }

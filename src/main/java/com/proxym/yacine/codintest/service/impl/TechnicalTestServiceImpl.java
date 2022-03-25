@@ -161,6 +161,10 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
             throw new CustomException("You are not the original creator of this technical test!", "UNAUTHORIZED", 403);
         }
         Exercise exercise = exerciseRepository.findById(id).orElseThrow(() -> new CustomException("There is no exercise with such ID", "EXERCISE NOT FOUND", 404));
+
+        if (exercise.getCompany().getId() != user.getCompany().getId()) {
+            throw new CustomException("This exercise doesn't exist on your company's virtual space!!", "BAD REQUEST", 400);
+        }
         Collection<Exercise> exercises = technicalTest.getExercises();
         if (exercises.contains(exercise)) {
             throw new CustomException("This exercise exists already for this technical test", "ALREADY EXIST", 400);
@@ -174,6 +178,24 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
 
     @Override
     public void removeExercise(Long id, Long exerciseId) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        TechnicalTest technicalTest = technicalTestRepository.findById(id).orElseThrow(() -> new CustomException("There is no technical test with such ID", "TECHNICAL TEST NOT FOUND", 404));
+        if (technicalTest.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this technical test!", "UNAUTHORIZED", 403);
+        }
+        Exercise exercise = exerciseRepository.findById(id).orElseThrow(() -> new CustomException("There is no exercise with such ID", "EXERCISE NOT FOUND", 404));
 
+        if (exercise.getCompany().getId() != user.getCompany().getId()) {
+            throw new CustomException("This exercise doesn't exist on your company's virtual space!!", "BAD REQUEST", 400);
+        }
+        Collection<Exercise> exercises = technicalTest.getExercises();
+        if (!exercises.contains(exercise)) {
+            throw new CustomException("This exercise doesn't exist on this technical test", "ALREADY EXIST", 400);
+        } else {
+            exercises.remove(exercise);
+            technicalTest.setExercises(exercises);
+            technicalTestRepository.save(technicalTest);
+            log.info(String.format("Exercise with ID %s is removed from the technical test with ID %s", exerciseId, id));
+        }
     }
 }
