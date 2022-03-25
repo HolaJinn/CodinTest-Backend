@@ -6,14 +6,16 @@ import com.proxym.yacine.codintest.model.Tag;
 import com.proxym.yacine.codintest.repository.ProgrammingLanguageRepository;
 import com.proxym.yacine.codintest.repository.RoleRepository;
 import com.proxym.yacine.codintest.repository.TagRepository;
-import org.modelmapper.ModelMapper;
+import org.modelmapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @SpringBootApplication
 @EnableJpaAuditing
@@ -32,7 +34,27 @@ public class CodintestApplication implements CommandLineRunner {
 
 	@Bean
 	public ModelMapper modelMapper() {
-		return new ModelMapper();
+		ModelMapper modelMapper = new ModelMapper();
+		Provider<LocalDate> localDateProvider = new AbstractProvider<LocalDate>() {
+			@Override
+			protected LocalDate get() {
+				return LocalDate.now();
+			}
+		};
+
+		Converter<String, LocalDate> toStringDate = new AbstractConverter<String, LocalDate>() {
+			@Override
+			protected LocalDate convert(String source) {
+				DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+				LocalDate localDate = LocalDate.parse(source, format);
+				return localDate;
+			}
+		};
+
+		modelMapper.createTypeMap(String.class, LocalDate.class);
+		modelMapper.addConverter(toStringDate);
+		modelMapper.getTypeMap(String.class, LocalDate.class).setProvider(localDateProvider);
+		return modelMapper;
 	}
 
 	public static void main(String[] args) {
