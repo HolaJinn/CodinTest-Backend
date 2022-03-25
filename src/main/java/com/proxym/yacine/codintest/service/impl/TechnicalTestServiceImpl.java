@@ -160,7 +160,7 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
         if (technicalTest.getCreator().getId() != user.getId()) {
             throw new CustomException("You are not the original creator of this technical test!", "UNAUTHORIZED", 403);
         }
-        Exercise exercise = exerciseRepository.findById(id).orElseThrow(() -> new CustomException("There is no exercise with such ID", "EXERCISE NOT FOUND", 404));
+        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new CustomException("There is no exercise with such ID", "EXERCISE NOT FOUND", 404));
 
         if (exercise.getCompany().getId() != user.getCompany().getId()) {
             throw new CustomException("This exercise doesn't exist on your company's virtual space!!", "BAD REQUEST", 400);
@@ -174,6 +174,35 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
             technicalTestRepository.save(technicalTest);
             log.info(String.format("Exercise with ID %s is added to the technical test with ID %s", exerciseId, id));
         }
+    }
+
+    @Override
+    public void addListExercise(Long id, List<Long> exercises) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        TechnicalTest technicalTest = technicalTestRepository.findById(id).orElseThrow(() -> new CustomException("There is no technical test with such ID", "TECHNICAL TEST NOT FOUND", 404));
+        if (technicalTest.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this technical test!", "UNAUTHORIZED", 403);
+        }
+        Collection<Exercise> exisitingExercises = technicalTest.getExercises();
+
+        exercises.stream()
+                .map(exerciseId -> {
+                    Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new CustomException("There is no exercise with such ID", "EXERCISE NOT FOUND", 404));
+                    if (exercise.getCompany().getId() != user.getCompany().getId()) {
+                         throw new CustomException("This exercise doesn't exist on your company's virtual space!!", "BAD REQUEST", 400);
+                    }
+                    if (exisitingExercises.contains(exercise)) {
+                        throw new CustomException("This exercise already exist on the technical test","ALREADY EXIST", 400);
+                    } else {
+                        exisitingExercises.add(exercise);
+                    }
+                    return exisitingExercises;
+                })
+                .collect(Collectors.toList());
+        technicalTest.setExercises(exisitingExercises);
+        technicalTestRepository.save(technicalTest);
+        log.info(String.format("Exercises are added to the technical test with ID %s", id));
+
     }
 
     @Override

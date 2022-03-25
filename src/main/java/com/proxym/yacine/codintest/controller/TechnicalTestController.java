@@ -1,6 +1,7 @@
 package com.proxym.yacine.codintest.controller;
 
 import com.proxym.yacine.codintest.dto.TechnicalTestFilterOption;
+import com.proxym.yacine.codintest.dto.request.ListExercisesRequest;
 import com.proxym.yacine.codintest.dto.request.NewTechnicalTestRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TechnicalTestDto;
@@ -56,6 +57,12 @@ public class TechnicalTestController {
     public ResponseEntity<?> addExercise(@PathVariable Long id, @PathVariable Long exerciseId) {
         technicalTestService.addExercise(id, exerciseId);
         return new ResponseEntity<>("Exercise added to technical test successfully", HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/exercises")
+    public ResponseEntity<?> addListExercises(@PathVariable Long id, @RequestBody ListExercisesRequest list) {
+        technicalTestService.addListExercise(id, list.getExercises());
+        return new ResponseEntity<>("Exercises are added to the technical test", HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/exercises/{exerciseId}")

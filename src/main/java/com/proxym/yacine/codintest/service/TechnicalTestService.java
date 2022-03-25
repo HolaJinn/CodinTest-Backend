@@ -17,5 +17,6 @@ public interface TechnicalTestService {
     void delete(Long id);
     List<ExerciseDto> getAllExercises(Long id);
     void addExercise(Long id, Long exerciseId);
+    void addListExercise(Long id, List<Long> exercises);
     void removeExercise(Long id, Long exerciseId);
 }
