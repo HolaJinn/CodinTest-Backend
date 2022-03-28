@@ -2,6 +2,7 @@ package com.proxym.yacine.codintest.controller;
 
 import com.proxym.yacine.codintest.dto.request.*;
 import com.proxym.yacine.codintest.dto.response.AuthenticationResponse;
+import com.proxym.yacine.codintest.dto.response.CurrentUserDto;
 import com.proxym.yacine.codintest.model.AppUser;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.util.Routes;
@@ -74,8 +75,10 @@ public class AuthController {
 
     @GetMapping(Routes.currentUserRoute)
     public ResponseEntity<?> getCurrentUser() {
-        AppUser appUser =  appUserService.getCurrentAuthenticatedUser();
-        return new ResponseEntity<>(appUser, HttpStatus.OK);
+//        AppUser appUser =  appUserService.getCurrentAuthenticatedUser();
+//        return new ResponseEntity<>(appUser, HttpStatus.OK);
+        CurrentUserDto user = appUserService.getAuthenticatedUser();
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 }

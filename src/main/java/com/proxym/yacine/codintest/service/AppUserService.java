@@ -2,6 +2,7 @@ package com.proxym.yacine.codintest.service;
 
 import com.proxym.yacine.codintest.dto.request.*;
 import com.proxym.yacine.codintest.dto.response.AuthenticationResponse;
+import com.proxym.yacine.codintest.dto.response.CurrentUserDto;
 import com.proxym.yacine.codintest.model.AppUser;
 import org.springframework.http.ResponseEntity;
 
@@ -21,6 +22,7 @@ public interface AppUserService {
     boolean verify(String verificationCode);
     AuthenticationResponse login(AuthenticationRequest request);
     AppUser getCurrentAuthenticatedUser();
+    CurrentUserDto getAuthenticatedUser();
     void updateResetPasswordToken(ForgotPasswordRequest request, String siteURL) throws MessagingException, UnsupportedEncodingException;
     boolean verifyResetPasswordToken(String verificationCode);
     void updatePassword(String token, NewPasswordRequest request);

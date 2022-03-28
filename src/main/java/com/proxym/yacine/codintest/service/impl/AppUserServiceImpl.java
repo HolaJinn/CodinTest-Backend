@@ -3,6 +3,7 @@ package com.proxym.yacine.codintest.service.impl;
 import com.proxym.yacine.codintest.config.security.TokenProvider;
 import com.proxym.yacine.codintest.dto.request.*;
 import com.proxym.yacine.codintest.dto.response.AuthenticationResponse;
+import com.proxym.yacine.codintest.dto.response.CurrentUserDto;
 import com.proxym.yacine.codintest.exception.CustomException;
 import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.repository.*;
@@ -14,6 +15,7 @@ import com.proxym.yacine.codintest.validator.AppUserValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -62,6 +64,9 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
 
     /*
@@ -302,6 +307,13 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     public AppUser getCurrentAuthenticatedUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return findByEmail(username);
+    }
+
+    @Override
+    public CurrentUserDto getAuthenticatedUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        AppUser user = findByEmail(username);
+        return modelMapper.map(user, CurrentUserDto.class);
     }
 
     @Override
