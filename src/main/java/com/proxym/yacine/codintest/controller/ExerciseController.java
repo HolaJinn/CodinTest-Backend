@@ -28,9 +28,9 @@ public class ExerciseController {
     private ExerciseService exerciseService;
 
     @PostMapping("")
-    public ResponseEntity<?> createExercise(@RequestBody NewExerciseRequest newExerciseRequest) {
-        exerciseService.create(newExerciseRequest);
-        return new ResponseEntity<>("New Exercise is created", HttpStatus.CREATED);
+    public ResponseEntity<ExerciseDto> createExercise(@RequestBody NewExerciseRequest newExerciseRequest) {
+        ExerciseDto exercise = exerciseService.create(newExerciseRequest);
+        return new ResponseEntity<>(exercise, HttpStatus.CREATED);
     }
 
     @GetMapping("")

@@ -68,12 +68,9 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public void create(NewExerciseRequest newExerciseRequest) {
+    public ExerciseDto create(NewExerciseRequest newExerciseRequest) {
 
         AppUser user = appUserService.getCurrentAuthenticatedUser();
-        System.out.println(user.getRole());
-        System.out.println(user.getRole().getId());
-        System.out.println(user.getRole().getName());
 
         if (!user.isVerified()) {
             throw new CustomException("You should verify your account first","NOT VERIFIED", 400);
@@ -97,6 +94,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .company(user.getCompany())
                 .build();
         exerciseRepository.save(exercise);
+        return modelMapper.map(exercise, ExerciseDto.class);
     }
 
     @Override

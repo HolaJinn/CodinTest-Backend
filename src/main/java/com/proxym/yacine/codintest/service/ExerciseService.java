@@ -14,7 +14,7 @@ import java.util.Map;
 public interface ExerciseService {
     Page<ExerciseDto> findAll(ExerciseFilterOption options);
     ExerciseDto findById(Long id);
-    void create(NewExerciseRequest newExerciseRequest);
+    ExerciseDto create(NewExerciseRequest newExerciseRequest);
     void updateExercise(Long exerciseId, Map<String, Object> changes);
     void deleteExercise(Long exerciseId);
     List<TestCaseResponse> getAllTestCases(Long exerciseId);
