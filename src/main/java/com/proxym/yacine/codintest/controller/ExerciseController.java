@@ -63,9 +63,9 @@ public class ExerciseController {
     }
 
     @PostMapping("/test-cases")
-    public ResponseEntity<?> addTestCase(@RequestBody NewTestCaseRequest newTestCaseRequest) {
-        exerciseService.addTestCase(newTestCaseRequest);
-        return new ResponseEntity<>("New test case is added to the exercise", HttpStatus.CREATED);
+    public ResponseEntity<TestCaseResponse> addTestCase(@RequestBody NewTestCaseRequest newTestCaseRequest) {
+        TestCaseResponse testCaseResponse = exerciseService.addTestCase(newTestCaseRequest);
+        return new ResponseEntity<>(testCaseResponse, HttpStatus.CREATED);
     }
 
     @PutMapping("/{exerciseId}/test-cases/{testCaseId}")

@@ -179,7 +179,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public void addTestCase(NewTestCaseRequest newTestCaseRequest) {
+    public TestCaseResponse addTestCase(NewTestCaseRequest newTestCaseRequest) {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
 
         Exercise exercise = exerciseRepository.findById(newTestCaseRequest.getExerciseId())
@@ -199,6 +199,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         exercise.getTestCases().add(testCase);
         testCaseRepository.save(testCase);
         exerciseRepository.save(exercise);
+        return modelMapper.map(testCase, TestCaseResponse.class);
     }
 
     @Override
