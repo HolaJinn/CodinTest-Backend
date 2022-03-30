@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,4 +22,5 @@ public class NewExerciseRequest {
     private Integer timerInMinute;
     private String programmingLanguage;
     private String initialCode;
+    private List<Integer> tags;
 }

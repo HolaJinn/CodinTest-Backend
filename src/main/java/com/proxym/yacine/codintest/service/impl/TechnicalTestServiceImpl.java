@@ -183,7 +183,7 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
         if (technicalTest.getCreator().getId() != user.getId()) {
             throw new CustomException("You are not the original creator of this technical test!", "UNAUTHORIZED", 403);
         }
-        Collection<Exercise> exisitingExercises = technicalTest.getExercises();
+        Collection<Exercise> existingExercises = technicalTest.getExercises();
 
         exercises.stream()
                 .map(exerciseId -> {
@@ -191,15 +191,15 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
                     if (exercise.getCompany().getId() != user.getCompany().getId()) {
                          throw new CustomException("This exercise doesn't exist on your company's virtual space!!", "BAD REQUEST", 400);
                     }
-                    if (exisitingExercises.contains(exercise)) {
+                    if (existingExercises.contains(exercise)) {
                         throw new CustomException("This exercise already exist on the technical test","ALREADY EXIST", 400);
                     } else {
-                        exisitingExercises.add(exercise);
+                        existingExercises.add(exercise);
                     }
-                    return exisitingExercises;
+                    return existingExercises;
                 })
                 .collect(Collectors.toList());
-        technicalTest.setExercises(exisitingExercises);
+        technicalTest.setExercises(existingExercises);
         technicalTestRepository.save(technicalTest);
         log.info(String.format("Exercises are added to the technical test with ID %s", id));
 

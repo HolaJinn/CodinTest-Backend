@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.transaction.Transactional;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.proxym.yacine.codintest.model.QTag.tag;
@@ -93,6 +90,16 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .timerInMinute(newExerciseRequest.getTimerInMinute())
                 .company(user.getCompany())
                 .build();
+
+        List<Tag> tags = new ArrayList<>();
+        List<Integer> tagsId = newExerciseRequest.getTags();
+        tagsId.stream()
+                .map(tagId -> {
+                    Tag tag = tagRepository.findById(tagId).orElseThrow(() -> new CustomException("There is no tag with such ID", "TAG NOT FOUND", 404));
+                    tags.add(tag);
+                    return tags;
+                }).collect(Collectors.toList());
+        exercise.setTags(tags);
         exerciseRepository.save(exercise);
         return modelMapper.map(exercise, ExerciseDto.class);
     }

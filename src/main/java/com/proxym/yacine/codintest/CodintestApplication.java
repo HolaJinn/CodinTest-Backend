@@ -84,21 +84,55 @@ public class CodintestApplication implements CommandLineRunner {
 
 		ProgrammingLanguage java = new ProgrammingLanguage(null, "JAVA");
 		ProgrammingLanguage cpp = new ProgrammingLanguage(null, "C++");
+		ProgrammingLanguage javascript = new ProgrammingLanguage(null, "JAVASCRIPT");
+		ProgrammingLanguage python = new ProgrammingLanguage(null, "PYTHON");
+		ProgrammingLanguage ruby = new ProgrammingLanguage(null, "RUBY");
 
 		if (!programmingLanguageRepository.existsById(1)) {
 			programmingLanguageRepository.save(java);
 		}
 		if (!programmingLanguageRepository.existsById(2)) {
 			programmingLanguageRepository.save(cpp);
+		}if (!programmingLanguageRepository.existsById(3)) {
+			programmingLanguageRepository.save(javascript);
+		}if (!programmingLanguageRepository.existsById(4)) {
+			programmingLanguageRepository.save(python);
+		}if (!programmingLanguageRepository.existsById(5)) {
+			programmingLanguageRepository.save(ruby);
 		}
 
 		Tag string = new Tag(null, "String", "This tag is for string type of exercises");
 		Tag array = new Tag(null, "Array", "This tag is for array type of exercises");
+		Tag tree = new Tag(null, "Tree", "This tag is for tree type of exercises");
+		Tag number = new Tag(null, "Number", "This tag is for number type of exercises");
+		Tag algorithm = new Tag(null, "Algorithm", "This tag is for algorithm type of exercises");
+		Tag dataStructure = new Tag(null, "Data Structure", "This tag is for data structure type of exercises");
+		Tag hashList = new Tag(null, "Hash List", "This tag is for hash list type of exercises");
+		Tag map = new Tag(null, "Map", "This tag is for map type of exercises");
+
 		if (!tagRepository.existsById(1)) {
 			tagRepository.save(string);
 		}
 		if (!tagRepository.existsById(2)) {
 			tagRepository.save(array);
+		}
+		if (!tagRepository.existsById(3)) {
+			tagRepository.save(tree);
+		}
+		if (!tagRepository.existsById(4)) {
+			tagRepository.save(number);
+		}
+		if (!tagRepository.existsById(5)) {
+			tagRepository.save(algorithm);
+		}
+		if (!tagRepository.existsById(6)) {
+			tagRepository.save(dataStructure);
+		}
+		if (!tagRepository.existsById(7)) {
+			tagRepository.save(hashList);
+		}
+		if (!tagRepository.existsById(8)) {
+			tagRepository.save(map);
 		}
 
 	}
