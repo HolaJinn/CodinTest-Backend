@@ -2,6 +2,7 @@ package com.proxym.yacine.codintest.service;
 
 import com.proxym.yacine.codintest.dto.ExerciseFilterOption;
 import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
+import com.proxym.yacine.codintest.dto.request.NewInitialCodeForExercise;
 import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TagResponse;
@@ -24,4 +25,5 @@ public interface ExerciseService {
     List<TagResponse> getAllTags(Long exerciseId);
     void addTag(Long exerciseId, Integer tagId);
     void deleteTag(Long exerciseId, Integer tagId);
+    void addInitialCode(NewInitialCodeForExercise newInitialCodeForExercise);
 }

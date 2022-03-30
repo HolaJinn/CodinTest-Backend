@@ -1,10 +1,7 @@
 package com.proxym.yacine.codintest.controller;
 
 import com.proxym.yacine.codintest.dto.ExerciseFilterOption;
-import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
-import com.proxym.yacine.codintest.dto.request.NewTagForExerciseRequest;
-import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
-import com.proxym.yacine.codintest.dto.request.TestCaseExerciseRequest;
+import com.proxym.yacine.codintest.dto.request.*;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TagResponse;
 import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
@@ -96,5 +93,11 @@ public class ExerciseController {
     public ResponseEntity<?> removeTag(@PathVariable Long exerciseId, @PathVariable Integer tagId) {
         exerciseService.deleteTag(exerciseId, tagId);
         return new ResponseEntity<>("Tag is deleted from the exercise", HttpStatus.OK);
+    }
+
+    @PostMapping("/initial-code")
+    public ResponseEntity<?> addInitialCode(@RequestBody NewInitialCodeForExercise newInitialCodeForExercise) {
+        exerciseService.addInitialCode(newInitialCodeForExercise);
+        return new ResponseEntity<>("Initial code added to the exercise", HttpStatus.OK);
     }
 }

@@ -20,7 +20,5 @@ public class NewExerciseRequest {
     private ExerciseDifficulty difficulty;
     private ExerciseStatus status;
     private Integer timerInMinute;
-    private String programmingLanguage;
-    private String initialCode;
     private List<Integer> tags;
 }

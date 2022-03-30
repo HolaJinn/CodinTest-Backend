@@ -2,6 +2,7 @@ package com.proxym.yacine.codintest.service.impl;
 
 import com.proxym.yacine.codintest.dto.ExerciseFilterOption;
 import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
+import com.proxym.yacine.codintest.dto.request.NewInitialCodeForExercise;
 import com.proxym.yacine.codintest.dto.request.NewTestCaseRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TagResponse;
@@ -77,14 +78,10 @@ public class ExerciseServiceImpl implements ExerciseService {
             throw new CustomException("You are not allowed to create exercises", "UNAUTHORIZED", 403);
         }
 
-        ProgrammingLanguage programmingLanguage = programmingLanguageRepository.findByName(newExerciseRequest.getProgrammingLanguage())
-                .orElseThrow(() -> new CustomException("No programming language found with this name", "PROGRAMMING LANGUAGE NOT FOUND", 404));
         Exercise exercise = Exercise.builder()
                 .creator(user)
                 .title(newExerciseRequest.getTitle())
                 .description(newExerciseRequest.getDescription())
-                .initialCode(newExerciseRequest.getInitialCode())
-                .programmingLanguage(programmingLanguage)
                 .difficulty(newExerciseRequest.getDifficulty())
                 .status(newExerciseRequest.getStatus())
                 .timerInMinute(newExerciseRequest.getTimerInMinute())
@@ -326,6 +323,24 @@ public class ExerciseServiceImpl implements ExerciseService {
             exerciseRepository.save(exercise);
             log.info(String.format("Tag %s removed successfully from exercise with ID: %s", tag.getName(), exerciseId));
         }
+    }
+
+    @Override
+    public void addInitialCode(NewInitialCodeForExercise newInitialCodeForExercise) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        Exercise exercise = exerciseRepository.findById(newInitialCodeForExercise.getExerciseId())
+                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+
+        if(exercise.getCreator().getId() != user.getId()) {
+            throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
+
+        ProgrammingLanguage programmingLanguage = programmingLanguageRepository.findByName(newInitialCodeForExercise.getProgrammingLanguage())
+                .orElseThrow(() -> new CustomException("No programming language found with this name", "PROGRAMMING LANGUAGE NOT FOUND", 404));
+
+        exercise.setProgrammingLanguage(programmingLanguage);
+        exercise.setInitialCode(newInitialCodeForExercise.getInitialCode());
+        exerciseRepository.save(exercise);
     }
 
     /**
