@@ -136,20 +136,20 @@ public class ExerciseServiceImpl implements ExerciseService {
                         break;
                     }
                     case "difficulty": {
-                        if (value.toString().equals(ExerciseDifficulty.EASY.name())) {
-                            exercise.setDifficulty(ExerciseDifficulty.EASY);
-                        } else if (value.toString().equals(ExerciseDifficulty.MEDIUM.name())) {
-                            exercise.setDifficulty(ExerciseDifficulty.MEDIUM);
-                        } else if (value.toString().equals(ExerciseDifficulty.HARD.name())) {
-                            exercise.setDifficulty(ExerciseDifficulty.HARD);
+                        if (value.toString().equals(ExerciseDifficulty.Easy.name())) {
+                            exercise.setDifficulty(ExerciseDifficulty.Easy);
+                        } else if (value.toString().equals(ExerciseDifficulty.Medium.name())) {
+                            exercise.setDifficulty(ExerciseDifficulty.Medium);
+                        } else if (value.toString().equals(ExerciseDifficulty.Hard.name())) {
+                            exercise.setDifficulty(ExerciseDifficulty.Hard);
                         }
                         break;
                     }
                     case "status" : {
-                        if (value.toString().equals(ExerciseStatus.PUBLIC.name())) {
-                            exercise.setStatus(ExerciseStatus.PUBLIC);
-                        } else if(value.toString().equals(ExerciseStatus.PRIVATE.name())) {
-                            exercise.setStatus(ExerciseStatus.PRIVATE);
+                        if (value.toString().equals(ExerciseStatus.Public.name())) {
+                            exercise.setStatus(ExerciseStatus.Public);
+                        } else if(value.toString().equals(ExerciseStatus.Private.name())) {
+                            exercise.setStatus(ExerciseStatus.Public);
                         }
                         break;
                     }

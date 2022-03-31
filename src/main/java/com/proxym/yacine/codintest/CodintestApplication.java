@@ -82,11 +82,11 @@ public class CodintestApplication implements CommandLineRunner {
 			roleRepository.save(candidate);
 		}
 
-		ProgrammingLanguage java = new ProgrammingLanguage(null, "JAVA");
+		ProgrammingLanguage java = new ProgrammingLanguage(null, "Java");
 		ProgrammingLanguage cpp = new ProgrammingLanguage(null, "C++");
-		ProgrammingLanguage javascript = new ProgrammingLanguage(null, "JAVASCRIPT");
-		ProgrammingLanguage python = new ProgrammingLanguage(null, "PYTHON");
-		ProgrammingLanguage ruby = new ProgrammingLanguage(null, "RUBY");
+		ProgrammingLanguage javascript = new ProgrammingLanguage(null, "JavaScript");
+		ProgrammingLanguage python = new ProgrammingLanguage(null, "Python");
+		ProgrammingLanguage ruby = new ProgrammingLanguage(null, "Ruby");
 
 		if (!programmingLanguageRepository.existsById(1)) {
 			programmingLanguageRepository.save(java);
