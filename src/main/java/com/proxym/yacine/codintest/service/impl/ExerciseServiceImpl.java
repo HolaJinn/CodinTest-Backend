@@ -347,42 +347,48 @@ public class ExerciseServiceImpl implements ExerciseService {
      * This method allows receiving pages of exercises with filters optionally
      */
     @Override
-    public Page<ExerciseDto> findAll(ExerciseFilterOption options) {
+    public Page<ExerciseDto> findAll(Map<String, Object> options) {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
         BooleanBuilder builder = new BooleanBuilder();
         final QExercise qExercise = QExercise.exercise;
         return doYourJob(qExercise, builder, options, user);
     }
 
-    private Page<ExerciseDto> doYourJob(QExercise qExercise, BooleanBuilder builder, ExerciseFilterOption options, AppUser user) {
+    private Page<ExerciseDto> doYourJob(QExercise qExercise, BooleanBuilder builder, Map<String, Object> options, AppUser user) {
         int page = 0, limit = 10;
-
         if(options == null) {
             return exerciseRepository.findAll(builder, PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "CreatedDate", "id")))
                     .map(exercise -> modelMapper.map(exercise, ExerciseDto.class));
         } else {
-            page = (options.getPage() != null) ? options.getPage() : page;
-            limit = (options.getLimit() != null) ? options.getLimit() : limit;
-            if(options.getTitle() != null) builder.and(qExercise.title.containsIgnoreCase(options.getTitle()));
-            if(options.getDifficulty() != null) builder.and(qExercise.difficulty.eq(options.getDifficulty()));
-            if(options.getStatus().name().equalsIgnoreCase("PRIVATE")) {
-                builder.and(qExercise.company.id.eq(user.getCompany().getId()));
+            page = (options.get("page") != null) ? Integer.parseInt((String) options.get("page")) : page;
+            limit = (options.get("limit") != null) ? Integer.parseInt((String) options.get("limit")) : limit;
+            if(options.get("title") != null) builder.and(qExercise.title.containsIgnoreCase((String)options.get("title")));
+            if(options.get("difficulty") != null) builder.and(qExercise.difficulty.eq(ExerciseDifficulty.valueOf((String) options.get("difficulty"))));
+            if(options.get("status") != null) {
+                if(options.get("status").toString().equalsIgnoreCase("PRIVATE")) {
+                    builder.and(qExercise.company.id.eq(user.getCompany().getId()));
 
-            } else if(options.getStatus().name().equalsIgnoreCase("PUBLIC")) {
-                builder.and(qExercise.status.eq(options.getStatus()));
-            } else {
-                builder.and(qExercise.status.eq(ExerciseStatus.PUBLIC));
-                builder.and(qExercise.company.id.eq(user.getCompany().getId()));
-            }
-            if(options.getTimerInMinute() != null) builder.and(qExercise.timerInMinute.between(0, options.getTimerInMinute()));
-            if (options.getProgrammingLanguage() != null) builder.and(qExercise.programmingLanguage.name.containsIgnoreCase(options.getProgrammingLanguage()));
-            if (options.getTags() != null) {
-                for(int i = 0; i < options.getTags().size(); i++) {
-                    builder.and(qExercise.tags.any().id.eq(Math.toIntExact(options.getTags().get(i))));
+                } else if(options.get("status").toString().equalsIgnoreCase("PUBLIC")) {
+                    builder.and(qExercise.status.eq(ExerciseStatus.valueOf((String) options.get("status"))));
                 }
             }
-            Sort.Direction direction = (options.getOrder().equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;
-            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, options.getProperties()));
+
+            //TODO check if this one works fine
+//            else {
+//                builder.and(qExercise.status.eq(ExerciseStatus.PUBLIC));
+//                builder.and(qExercise.company.id.eq(user.getCompany().getId()));
+//            }
+
+            if(options.get("timerInMinute") != null) builder.and(qExercise.timerInMinute.between(0, Integer.valueOf((String) options.get("timerInMinute"))));
+            if (options.get("programmingLanguage") != null) builder.and(qExercise.programmingLanguage.name.containsIgnoreCase((String) options.get("programmingLanguage")));
+            if(options.get("tags") != null) {
+                String[] tags = options.get("tags").toString().split(",");
+                for(int i = 0; i < tags.length; i++) {
+                    builder.and(qExercise.tags.any().id.eq(Math.toIntExact(Integer.parseInt(tags[i]))));
+                }
+            }
+            Sort.Direction direction = (options.get("order").equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, ((String) options.get("properties"))));
             return (builder.getValue() != null) ? exerciseRepository.findAll(builder, pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class)) : exerciseRepository.findAll(pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class));
         }
     }

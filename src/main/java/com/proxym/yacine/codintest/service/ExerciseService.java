@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ExerciseService {
-    Page<ExerciseDto> findAll(ExerciseFilterOption options);
+    Page<ExerciseDto> findAll(Map<String, Object> options);
     ExerciseDto findById(Long id);
     ExerciseDto create(NewExerciseRequest newExerciseRequest);
     void updateExercise(Long exerciseId, Map<String, Object> changes);
