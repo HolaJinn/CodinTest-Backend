@@ -25,7 +25,7 @@ public class ExerciseDto {
     private String difficulty;
     private String status;
     private Integer timerInMinute;
-    private String programmingLanguage;
+    private String programmingLanguageName;
     private String initialCode;
     private Company company;
     private List<TestCase> testCases;
