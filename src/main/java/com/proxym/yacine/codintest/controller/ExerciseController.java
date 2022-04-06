@@ -26,14 +26,12 @@ public class ExerciseController {
 
     @PostMapping("")
     public ResponseEntity<ExerciseDto> createExercise(@RequestBody NewExerciseRequest newExerciseRequest) {
-        System.out.println(newExerciseRequest);
         ExerciseDto exercise = exerciseService.create(newExerciseRequest);
         return new ResponseEntity<>(exercise, HttpStatus.CREATED);
     }
 
     @GetMapping("")
     public Page<ExerciseDto> getAllExercises(@RequestParam Map<String, Object> options) {
-        System.out.println(options);
         return exerciseService.findAll(options);
     }
 

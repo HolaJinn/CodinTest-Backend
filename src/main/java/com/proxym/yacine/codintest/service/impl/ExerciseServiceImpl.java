@@ -356,6 +356,7 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     private Page<ExerciseDto> doYourJob(QExercise qExercise, BooleanBuilder builder, Map<String, Object> options, AppUser user) {
         int page = 0, limit = 10;
+        builder.and(qExercise.company.id.eq(user.getCompany().getId()));
         if(options == null) {
             return exerciseRepository.findAll(builder, PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "CreatedDate", "id")))
                     .map(exercise -> modelMapper.map(exercise, ExerciseDto.class));
@@ -387,6 +388,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                     builder.and(qExercise.tags.any().id.eq(Math.toIntExact(Integer.parseInt(tags[i]))));
                 }
             }
+            if(options.get("createdByMe") != null) builder.and(qExercise.creator.id.eq(user.getId()));
             Sort.Direction direction = (options.get("order").equals(Order.DESC.name())) ? Sort.Direction.DESC : Sort.Direction.ASC;
             PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, ((String) options.get("properties"))));
             return (builder.getValue() != null) ? exerciseRepository.findAll(builder, pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class)) : exerciseRepository.findAll(pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class));

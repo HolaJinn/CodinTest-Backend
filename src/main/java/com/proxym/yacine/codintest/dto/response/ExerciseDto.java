@@ -27,7 +27,9 @@ public class ExerciseDto {
     private Integer timerInMinute;
     private String programmingLanguageName;
     private String initialCode;
-    private Company company;
+    private Long companyId;
     private List<TestCase> testCases;
     private List<Tag> tags;
+    private String createdDate;
+    private String lastModifiedDate;
 }
