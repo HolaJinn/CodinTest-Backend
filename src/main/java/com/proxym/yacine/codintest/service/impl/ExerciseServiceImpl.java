@@ -388,7 +388,11 @@ public class ExerciseServiceImpl implements ExerciseService {
                     builder.and(qExercise.tags.any().id.eq(Math.toIntExact(Integer.parseInt(tags[i]))));
                 }
             }
-            if(options.get("createdByMe") != null) builder.and(qExercise.creator.id.eq(user.getId()));
+            if(options.get("createdByMe") != null){
+                if(options.get("createdByMe").toString().equals("true")) {
+                    builder.and(qExercise.creator.id.eq(user.getId()));
+                }
+            }
             Sort.Direction direction = (options.get("order").equals(Order.DESC.name())) ? Sort.Direction.DESC : Sort.Direction.ASC;
             PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, ((String) options.get("properties"))));
             return (builder.getValue() != null) ? exerciseRepository.findAll(builder, pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class)) : exerciseRepository.findAll(pageRequest).map(exercise -> modelMapper.map(exercise, ExerciseDto.class));

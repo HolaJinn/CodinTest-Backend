@@ -13,6 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ListExercisesRequest {
-
+    private Long technicalTestId;
     private List<Long> exercises;
 }

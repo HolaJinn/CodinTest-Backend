@@ -20,6 +20,8 @@ public class TechnicalTestDto {
     private String title;
     private String description;
     private Integer timerInMinute;
-    private Company company;
-    private List<Exercise> exercises;
+    private Long companyId;
+    private List<ExerciseDto> exercises;
+    private String createdDate;
+    private String lastModifiedDate;
 }

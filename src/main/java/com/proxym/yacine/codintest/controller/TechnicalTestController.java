@@ -25,14 +25,14 @@ public class TechnicalTestController {
     private TechnicalTestService technicalTestService;
 
     @GetMapping("")
-    public Page<TechnicalTestDto> findAll(@RequestBody TechnicalTestFilterOption options) {
+    public Page<TechnicalTestDto> findAll(@RequestParam Map<String, Object> options) {
         return technicalTestService.findAll(options);
     }
 
     @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody NewTechnicalTestRequest newTechnicalTestRequest) {
-        technicalTestService.create(newTechnicalTestRequest);
-        return new ResponseEntity<>("New technical test is created", HttpStatus.CREATED);
+    public ResponseEntity<TechnicalTestDto> create(@RequestBody NewTechnicalTestRequest newTechnicalTestRequest) {
+        TechnicalTestDto technicalTest = technicalTestService.create(newTechnicalTestRequest);
+        return new ResponseEntity<>(technicalTest, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -59,9 +59,9 @@ public class TechnicalTestController {
         return new ResponseEntity<>("Exercise added to technical test successfully", HttpStatus.OK);
     }
 
-    @PostMapping("/{id}/exercises")
-    public ResponseEntity<?> addListExercises(@PathVariable Long id, @RequestBody ListExercisesRequest list) {
-        technicalTestService.addListExercise(id, list.getExercises());
+    @PostMapping("/exercises")
+    public ResponseEntity<?> addListExercises(@RequestBody ListExercisesRequest list) {
+        technicalTestService.addListExercise(list.getTechnicalTestId(), list.getExercises());
         return new ResponseEntity<>("Exercises are added to the technical test", HttpStatus.OK);
     }
 

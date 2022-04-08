@@ -45,39 +45,39 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
     private ModelMapper modelMapper;
 
     @Override
-    public Page<TechnicalTestDto> findAll(TechnicalTestFilterOption options) {
+    public Page<TechnicalTestDto> findAll(Map<String, Object> options) {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
         BooleanBuilder builder = new BooleanBuilder();
         final QTechnicalTest qTechnicalTest = QTechnicalTest.technicalTest;
         return doYourJob(qTechnicalTest, builder, options, user);
     }
 
-    private Page<TechnicalTestDto> doYourJob(QTechnicalTest qTechnicalTest, BooleanBuilder builder, TechnicalTestFilterOption options, AppUser user) {
+    private Page<TechnicalTestDto> doYourJob(QTechnicalTest qTechnicalTest, BooleanBuilder builder, Map<String, Object> options, AppUser user) {
         int page = 0, limit = 10;
+
+        builder.and(qTechnicalTest.company.id.eq(user.getCompany().getId()));
 
         if (options == null) {
             return exerciseRepository.findAll(builder, PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "CreatedDate", "id")))
                     .map(technicalTest -> modelMapper.map(technicalTest, TechnicalTestDto.class));
         } else {
-            page = (options.getPage() != null) ? options.getPage() : page;
-            limit = (options.getLimit() != null) ? options.getLimit(): limit;
-            if(options.getTitle() != null) builder.and(qTechnicalTest.title.containsIgnoreCase(options.getTitle()));
-            if(options.getTimerInMinute() != null) builder.and(qTechnicalTest.timerInMinute.between(0, options.getTimerInMinute()));
-            if (options.getCreatedByMe() != null) {
-                if (options.getCreatedByMe().booleanValue()) {
+            page = (options.get("page") != null) ? Integer.parseInt((String) options.get("page")) : page;
+            limit = (options.get("limit") != null) ? Integer.parseInt((String) options.get("limit")): limit;
+            if(options.get("title") != null) builder.and(qTechnicalTest.title.containsIgnoreCase((String)options.get("title")));
+            if(options.get("timerInMinute") != null) builder.and(qTechnicalTest.timerInMinute.between(0, Integer.valueOf((String) options.get("timerInMinute"))));
+            if (options.get("createdByMe") != null) {
+                if (options.get("createdByMe").toString().equals("true")) {
                     builder.and(qTechnicalTest.creator.id.eq(user.getId()));
-                } else {
-                    builder.and(qTechnicalTest.company.id.eq(user.getCompany().getId()));
                 }
             }
-            Sort.Direction direction = (options.getOrder().equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;
-            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, options.getProperties()));
+            Sort.Direction direction = (options.get("order").equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, ((String) options.get("properties"))));
             return (builder.getValue() != null) ? technicalTestRepository.findAll(builder, pageRequest).map(technicalTest -> modelMapper.map(technicalTest, TechnicalTestDto.class)) : technicalTestRepository.findAll(pageRequest).map(technicalTest -> modelMapper.map(technicalTest, TechnicalTestDto.class));
         }
     }
 
     @Override
-    public void create(NewTechnicalTestRequest newTechnicalTestRequest) {
+    public TechnicalTestDto create(NewTechnicalTestRequest newTechnicalTestRequest) {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
         if (!user.isVerified()) {
             throw new CustomException("You should verify your account first","NOT VERIFIED", 400);
@@ -97,6 +97,7 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
 
         technicalTestRepository.save(technicalTest);
         log.info(String.format("New technical test %s is created", newTechnicalTestRequest.getTitle()));
+        return modelMapper.map(technicalTest, TechnicalTestDto.class);
     }
 
     @Override

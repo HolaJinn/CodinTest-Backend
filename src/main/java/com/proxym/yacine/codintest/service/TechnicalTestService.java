@@ -11,8 +11,8 @@ import java.util.Map;
 
 public interface TechnicalTestService {
 
-    Page<TechnicalTestDto> findAll(TechnicalTestFilterOption option);
-    void create(NewTechnicalTestRequest newTechnicalTestRequest);
+    Page<TechnicalTestDto> findAll(Map<String, Object> options);
+    TechnicalTestDto create(NewTechnicalTestRequest newTechnicalTestRequest);
     void update(Long id, Map<String, Object> changes);
     void delete(Long id);
     List<ExerciseDto> getAllExercises(Long id);
