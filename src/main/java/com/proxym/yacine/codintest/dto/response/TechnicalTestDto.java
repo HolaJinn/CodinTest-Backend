@@ -1,5 +1,6 @@
 package com.proxym.yacine.codintest.dto.response;
 
+import com.proxym.yacine.codintest.model.AppUser;
 import com.proxym.yacine.codintest.model.Company;
 import com.proxym.yacine.codintest.model.Exercise;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
 public class TechnicalTestDto {
 
     private Long id;
-    private Long creatorId;
+    private AppUser creator;
     private String title;
     private String description;
     private Integer timerInMinute;

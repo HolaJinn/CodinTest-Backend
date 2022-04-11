@@ -5,12 +5,16 @@ import com.proxym.yacine.codintest.dto.request.NewInvitationRequest;
 import com.proxym.yacine.codintest.dto.response.InvitationDto;
 import com.proxym.yacine.codintest.service.InvitationService;
 import com.proxym.yacine.codintest.util.Routes;
+import com.proxym.yacine.codintest.util.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -27,8 +31,8 @@ public class InvitationController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody NewInvitationRequest newInvitationRequest) {
-        invitationService.create(newInvitationRequest);
+    public ResponseEntity<?> create(@RequestBody NewInvitationRequest newInvitationRequest, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+        invitationService.create(newInvitationRequest, Utility.getSiteURL(request));
         return new ResponseEntity<>("New invitation is created", HttpStatus.CREATED);
     }
 

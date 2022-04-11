@@ -1,12 +1,10 @@
 package com.proxym.yacine.codintest.dto.request;
 
-import com.proxym.yacine.codintest.util.InvitationState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -18,5 +16,6 @@ public class NewInvitationRequest {
     private String candidateEmail;
     private Long technicalTestId;
     private String subject;
+    private String content;
     private LocalDateTime expirationDate;
 }

@@ -12,6 +12,7 @@ import com.proxym.yacine.codintest.repository.InvitationRepository;
 import com.proxym.yacine.codintest.repository.TechnicalTestRepository;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.InvitationService;
+import com.proxym.yacine.codintest.util.Constants;
 import com.proxym.yacine.codintest.util.InvitationState;
 import com.proxym.yacine.codintest.util.Order;
 import com.querydsl.core.BooleanBuilder;
@@ -21,8 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -38,6 +44,9 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Autowired
     private TechnicalTestRepository technicalTestRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -75,7 +84,7 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public void create(NewInvitationRequest newInvitationRequest) {
+    public void create(NewInvitationRequest newInvitationRequest, String siteURL) throws MessagingException, UnsupportedEncodingException {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
         if (!user.isVerified()) {
             throw new CustomException("You should verify your account first","NOT VERIFIED", 400);
@@ -100,6 +109,33 @@ public class InvitationServiceImpl implements InvitationService {
 
         invitationRepository.save(invitation);
         log.info(String.format("New invitation is created"));
+        sendInvitationLink(newInvitationRequest, invitation.getId(), siteURL);
+    }
+
+    @Override
+    public void sendInvitationLink(NewInvitationRequest newInvitationRequest, Long invitationId, String siteURL) throws MessagingException, UnsupportedEncodingException {
+        String toAddress = newInvitationRequest.getCandidateEmail();
+        String fromAddress = "benamoryacine98@gmail.com";
+        String senderName = "CodinTest";
+        String subject = newInvitationRequest.getSubject();
+        String content = "Dear Candidate,<br>"
+                + "Please click the link below to access your technical test assignment:<br>"
+                + "<h3><a href=\"[[URL]]\" target=\"_self\">Test Link</a></h3>"
+                + newInvitationRequest.getContent() + "<br>"
+                + "Thank you,<br>"
+                + "CodinTest.";
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(fromAddress, senderName);
+        helper.setTo(toAddress);
+        helper.setSubject(subject);
+
+        String invitationURL = Constants.CLIENT_URL + "/candidate/invitation?id=" + invitationId;
+        content = content.replace("[[URL]]", invitationURL);
+
+        helper.setText(content, true);
+        mailSender.send(message);
     }
 
     @Override
