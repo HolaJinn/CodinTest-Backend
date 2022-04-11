@@ -17,6 +17,7 @@ import com.proxym.yacine.codintest.util.InvitationState;
 import com.proxym.yacine.codintest.util.Order;
 import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.utility.RandomString;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -97,6 +98,7 @@ public class InvitationServiceImpl implements InvitationService {
         TechnicalTest technicalTest = technicalTestRepository.findById(newInvitationRequest.getTechnicalTestId())
                 .orElseThrow(() -> new CustomException("There is no technical test with such ID", "TECHNICAL TEST NOT FOUND", 404));
 
+        String randomToken = RandomString.make(64);
         Invitation invitation = Invitation.builder()
                 .invitedBy(user)
                 .candidateEmail(newInvitationRequest.getCandidateEmail())
@@ -104,16 +106,17 @@ public class InvitationServiceImpl implements InvitationService {
                 .subject(newInvitationRequest.getSubject())
                 .expirationDate(newInvitationRequest.getExpirationDate())
                 .state(InvitationState.PENDING)
+                .verificationToken(randomToken)
                 .company(user.getCompany())
                 .build();
 
         invitationRepository.save(invitation);
         log.info(String.format("New invitation is created"));
-        sendInvitationLink(newInvitationRequest, invitation.getId(), siteURL);
+        sendInvitationLink(newInvitationRequest, randomToken, siteURL);
     }
 
     @Override
-    public void sendInvitationLink(NewInvitationRequest newInvitationRequest, Long invitationId, String siteURL) throws MessagingException, UnsupportedEncodingException {
+    public void sendInvitationLink(NewInvitationRequest newInvitationRequest, String token, String siteURL) throws MessagingException, UnsupportedEncodingException {
         String toAddress = newInvitationRequest.getCandidateEmail();
         String fromAddress = "benamoryacine98@gmail.com";
         String senderName = "CodinTest";
@@ -131,7 +134,7 @@ public class InvitationServiceImpl implements InvitationService {
         helper.setTo(toAddress);
         helper.setSubject(subject);
 
-        String invitationURL = Constants.CLIENT_URL + "/candidate/invitation?id=" + invitationId;
+        String invitationURL = Constants.CLIENT_URL + "candidate/invitation?token=" + token;
         content = content.replace("[[URL]]", invitationURL);
 
         helper.setText(content, true);

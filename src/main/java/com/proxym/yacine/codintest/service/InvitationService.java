@@ -14,7 +14,7 @@ public interface InvitationService {
 
     Page<InvitationDto> findAll(InvitationFilterOption options);
     void create(NewInvitationRequest newInvitationRequest,String siteURL) throws MessagingException, UnsupportedEncodingException;
-    void sendInvitationLink(NewInvitationRequest newInvitationRequest,Long invitationId, String siteURL) throws MessagingException, UnsupportedEncodingException;
+    void sendInvitationLink(NewInvitationRequest newInvitationRequest,String token, String siteURL) throws MessagingException, UnsupportedEncodingException;
     void update(Long invitationId, Map<String, Object> changes);
     void delete(Long invitationId);
 }

@@ -39,6 +39,9 @@ public class Invitation extends Auditable{
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expirationDate;
 
+    @Column(name = "verification_token", length = 64)
+    private String verificationToken;
+
     private InvitationState state;
 
     private Integer rating;
