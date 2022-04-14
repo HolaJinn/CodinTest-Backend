@@ -32,6 +32,7 @@ public class ExerciseController {
 
     @GetMapping("")
     public Page<ExerciseDto> getAllExercises(@RequestParam Map<String, Object> options) {
+        System.out.println(options);
         return exerciseService.findAll(options);
     }
 

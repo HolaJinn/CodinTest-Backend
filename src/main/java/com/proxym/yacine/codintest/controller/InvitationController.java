@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -26,8 +27,13 @@ public class InvitationController {
     private InvitationService invitationService;
 
     @GetMapping("")
-    public Page<InvitationDto> findAll(@RequestBody InvitationFilterOption options) {
+    public Page<InvitationDto> findAll(@RequestParam Map<String, Object> options) {
         return invitationService.findAll(options);
+    }
+
+    @GetMapping("/my-invitations")
+    public Page<InvitationDto> findCurrentUserInvitations(@RequestParam Map<String, Object> options) {
+        return invitationService.findCurrentUserInvitations(options);
     }
 
     @PostMapping("")

@@ -363,7 +363,12 @@ public class ExerciseServiceImpl implements ExerciseService {
         } else {
             page = (options.get("page") != null) ? Integer.parseInt((String) options.get("page")) : page;
             limit = (options.get("limit") != null) ? Integer.parseInt((String) options.get("limit")) : limit;
-            if(options.get("title") != null) builder.and(qExercise.title.containsIgnoreCase((String)options.get("title")));
+            if(options.get("search") != null) {
+                builder.andAnyOf(
+                        qExercise.title.containsIgnoreCase((String)options.get("search")),
+                        qExercise.programmingLanguage.name.containsIgnoreCase((String) options.get("search"))
+                );
+            }
             if(options.get("difficulty") != null) builder.and(qExercise.difficulty.eq(ExerciseDifficulty.valueOf((String) options.get("difficulty"))));
             if(options.get("status") != null) {
                 if(options.get("status").toString().equalsIgnoreCase("PRIVATE")) {
@@ -383,11 +388,14 @@ public class ExerciseServiceImpl implements ExerciseService {
             if(options.get("timerInMinute") != null) builder.and(qExercise.timerInMinute.between(0, Integer.valueOf((String) options.get("timerInMinute"))));
             if (options.get("programmingLanguage") != null) builder.and(qExercise.programmingLanguage.name.containsIgnoreCase((String) options.get("programmingLanguage")));
             if(options.get("tags") != null) {
-                String[] tags = options.get("tags").toString().split(",");
-                for(int i = 0; i < tags.length; i++) {
-                    builder.and(qExercise.tags.any().id.eq(Math.toIntExact(Integer.parseInt(tags[i]))));
-                }
+               if(!options.get("tags").toString().equalsIgnoreCase("")) {
+                   String[] tags = options.get("tags").toString().split(",");
+                   for(int i = 0; i < tags.length; i++) {
+                       builder.and(qExercise.tags.any().id.eq(Math.toIntExact(Integer.parseInt(tags[i]))));
+                   }
+               }
             }
+
             if(options.get("createdByMe") != null){
                 if(options.get("createdByMe").toString().equals("true")) {
                     builder.and(qExercise.creator.id.eq(user.getId()));

@@ -31,7 +31,9 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -53,31 +55,76 @@ public class InvitationServiceImpl implements InvitationService {
     private ModelMapper modelMapper;
 
     @Override
-    public Page<InvitationDto> findAll(InvitationFilterOption options) {
+    public Page<InvitationDto> findAll(Map<String, Object> options) {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
         BooleanBuilder builder = new BooleanBuilder();
         final QInvitation qInvitation = QInvitation.invitation;
         return doYourJob(qInvitation, builder, options, user);
     }
 
-    private Page<InvitationDto> doYourJob(QInvitation qInvitation, BooleanBuilder builder, InvitationFilterOption options, AppUser user) {
+    private Page<InvitationDto> doYourJob(QInvitation qInvitation, BooleanBuilder builder, Map<String, Object> options, AppUser user) {
         int page = 0, limit = 10;
 
         if (options == null) {
             return invitationRepository.findAll(builder, PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "CreatedDate", "id")))
                     .map(invitation -> modelMapper.map(invitation, InvitationDto.class));
         } else {
-            page = (options.getPage() != null) ? options.getPage() : page;
-            limit = (options.getLimit() != null) ? options.getLimit() : limit;
 
-            if (options.getState() != null) builder.and(qInvitation.state.eq(options.getState()));
-            if (options.getIsRated() != null) {
-                if (options.getIsRated().booleanValue()) {
+            page = (options.get("page") != null) ? Integer.parseInt((String) options.get("page")) : page;
+            limit = (options.get("limit") != null) ? Integer.parseInt((String) options.get("limit")) : limit;
+
+            if (options.get("state") != null) builder.and(qInvitation.state.eq(InvitationState.valueOf((String) options.get("state"))));
+            if (options.get("rated") != null) {
+                if (options.get("rated").toString().equalsIgnoreCase("true")) {
                     builder.and(qInvitation.rating.ne(0));
                 }
             }
-            Sort.Direction direction = (options.getOrder().equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;
-            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, options.getProperties()));
+
+            Sort.Direction direction = (options.get("order").equals(Order.DESC)) ? Sort.Direction.DESC : Sort.Direction.ASC;
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, ((String) options.get("properties"))));
+            return (builder.getValue() != null)
+                    ? invitationRepository.findAll(builder, pageRequest).map(invitation -> modelMapper.map(invitation, InvitationDto.class))
+                    : invitationRepository.findAll(pageRequest).map(invitation -> modelMapper.map(invitation, InvitationDto.class));
+        }
+    }
+
+    @Override
+    public Page<InvitationDto> findCurrentUserInvitations(Map<String, Object> options) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        BooleanBuilder builder = new BooleanBuilder();
+        final QInvitation qInvitation = QInvitation.invitation;
+        return findMyInvitations(qInvitation, builder, options, user);
+    }
+
+    private Page<InvitationDto> findMyInvitations(QInvitation qInvitation, BooleanBuilder builder, Map<String, Object> options, AppUser user) {
+        int page = 0, limit = 10;
+
+        builder.and(qInvitation.candidateEmail.equalsIgnoreCase(user.getEmail()));
+
+        if (options == null) {
+            return invitationRepository.findAll(builder, PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "CreatedDate", "id")))
+                    .map(invitation -> modelMapper.map(invitation, InvitationDto.class));
+        } else {
+
+            page = (options.get("page") != null) ? Integer.parseInt((String) options.get("page")) : page;
+            limit = (options.get("limit") != null) ? Integer.parseInt((String) options.get("limit")) : limit;
+
+            if (options.get("state") != null) builder.and(qInvitation.state.eq(InvitationState.valueOf((String) options.get("state"))));
+            if (options.get("rated") != null) {
+                if (options.get("rated").toString().equalsIgnoreCase("true")) {
+                    builder.and(qInvitation.rating.ne(0));
+                }
+            }
+            if(options.get("search") != null) {
+                    builder.andAnyOf(qInvitation.subject.containsIgnoreCase((String) options.get("search")),
+                            qInvitation.invitedBy.firstName.containsIgnoreCase((String) options.get("search")),
+                            qInvitation.invitedBy.lastName.containsIgnoreCase((String) options.get("search")),
+                            qInvitation.company.name.containsIgnoreCase((String) options.get("search"))
+                    );
+            }
+
+            Sort.Direction direction = (options.get("order").equals(Order.DESC.name())) ? Sort.Direction.DESC : Sort.Direction.ASC;
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, ((String) options.get("properties"))));
             return (builder.getValue() != null)
                     ? invitationRepository.findAll(builder, pageRequest).map(invitation -> modelMapper.map(invitation, InvitationDto.class))
                     : invitationRepository.findAll(pageRequest).map(invitation -> modelMapper.map(invitation, InvitationDto.class));
@@ -105,7 +152,7 @@ public class InvitationServiceImpl implements InvitationService {
                 .technicalTest(technicalTest)
                 .subject(newInvitationRequest.getSubject())
                 .expirationDate(newInvitationRequest.getExpirationDate())
-                .state(InvitationState.PENDING)
+                .state(InvitationState.Pending)
                 .verificationToken(randomToken)
                 .company(user.getCompany())
                 .build();

@@ -15,13 +15,15 @@ import java.time.LocalDateTime;
 public class InvitationDto {
 
     private Long id;
-    private Long invitedById;
+    private CurrentUserDto invitedBy;
     private String candidateEmail;
     private Long technicalTestId;
     private String subject;
     private LocalDateTime expirationDate;
     private InvitationState state;
     private Integer rating;
-    private Long companyId;
+    private CompanyDto company;
+    private String createdDate;
+    private String lastModifiedDate;
 
 }
