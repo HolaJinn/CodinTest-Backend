@@ -50,8 +50,20 @@ public class InvitationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        System.out.println("Hello controller");
         invitationService.delete(id);
         return new ResponseEntity<>("Invitation is deleted successfully", HttpStatus.OK);
+    }
+
+    @PostMapping("/accept-invitation/{id}")
+    public ResponseEntity<?> accept(@PathVariable Long id) {
+        System.out.println("Hello controller");
+        invitationService.acceptInvitation(id);
+        return new ResponseEntity<>("Invitation accepted", HttpStatus.OK);
+    }
+
+    @PostMapping("/reject-invitation/{id}")
+    public ResponseEntity<?> reject(@PathVariable Long id) {
+        invitationService.rejectInvitation(id);
+        return new ResponseEntity<>("Invitation Rejected", HttpStatus.OK);
     }
 }

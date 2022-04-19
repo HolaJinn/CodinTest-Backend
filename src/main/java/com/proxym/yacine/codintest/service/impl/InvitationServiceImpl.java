@@ -73,10 +73,24 @@ public class InvitationServiceImpl implements InvitationService {
             page = (options.get("page") != null) ? Integer.parseInt((String) options.get("page")) : page;
             limit = (options.get("limit") != null) ? Integer.parseInt((String) options.get("limit")) : limit;
 
-            if (options.get("state") != null) builder.and(qInvitation.state.eq(InvitationState.valueOf((String) options.get("state"))));
+            if (options.get("state") != null) {
+                if (!options.get("state").toString().equals("All")) {
+                    builder.and(qInvitation.state.eq(InvitationState.valueOf((String) options.get("state"))));
+                }
+            };
             if (options.get("rated") != null) {
                 if (options.get("rated").toString().equalsIgnoreCase("true")) {
                     builder.and(qInvitation.rating.ne(0));
+                }
+            }
+            if(options.get("search") != null) {
+                builder.andAnyOf(qInvitation.subject.containsIgnoreCase((String) options.get("search")),
+                        qInvitation.candidateEmail.containsIgnoreCase((String) options.get("search"))
+                );
+            }
+            if(options.get("createdByMe") != null){
+                if(options.get("createdByMe").toString().equals("true")) {
+                    builder.and(qInvitation.invitedBy.id.eq(user.getId()));
                 }
             }
 
@@ -86,6 +100,13 @@ public class InvitationServiceImpl implements InvitationService {
                     ? invitationRepository.findAll(builder, pageRequest).map(invitation -> modelMapper.map(invitation, InvitationDto.class))
                     : invitationRepository.findAll(pageRequest).map(invitation -> modelMapper.map(invitation, InvitationDto.class));
         }
+    }
+
+    @Override
+    public Invitation getById(Long id) {
+        Invitation invitation = invitationRepository.findById(id)
+                .orElseThrow(() -> new CustomException("There is no invitation with such ID", "INVITATION NOT FOUND", 404));
+        return invitation;
     }
 
     @Override
@@ -237,11 +258,70 @@ public class InvitationServiceImpl implements InvitationService {
         }
 
         if (user.getRole().getId().intValue() == 4){
-            throw new CustomException("You are not allowed to create technical tests", "UNAUTHORIZED", 403);
+            throw new CustomException("You are not allowed to delete this invitation", "UNAUTHORIZED", 403);
         }
         Invitation invitation = invitationRepository.findById(invitationId)
-                .orElseThrow(() -> new CustomException("There is no invitation with such ID", "TECHNICAL TEST NOT FOUND", 404));
+                .orElseThrow(() -> new CustomException("There is no invitation with such ID", "INVITATION NOT FOUND", 404));
         invitationRepository.delete(invitation);
         log.info(String.format("Invitation with ID %s is deleted successfully", invitationId));
+    }
+
+    @Override
+    public void checkForExpiration() {
+        List<Invitation> invitations = invitationRepository.findInvitationByState(InvitationState.Pending);
+        LocalDateTime now = LocalDateTime.now();
+        invitations.stream().map((invitation -> {
+            if (now.compareTo(invitation.getExpirationDate()) > 0) {
+                invitation.setState(InvitationState.Expired);
+                invitationRepository.save(invitation);
+            }
+            return null;
+        })).collect(Collectors.toList());
+    }
+
+    @Override
+    public void acceptInvitation(Long invitationId) {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        Invitation invitation = getById(invitationId);
+        System.out.println(user.getEmail());
+        if (!user.isVerified()) {
+            throw new CustomException("You should verify your account first","NOT VERIFIED", 400);
+        }
+        System.out.println("test here");
+        if(!user.getEmail().equals(invitation.getCandidateEmail())) {
+            throw new CustomException("You are not the original receiver of this invitation", "UNAUTHORIZED", 403);
+        }
+
+        if(!invitation.getState().equals(InvitationState.Pending)) {
+            throw new CustomException("This invitation has expired already you can't accept it anymore!", "BAD REQUEST", 400);
+        }
+        if(invitation.getState().equals(InvitationState.Accepted)) {
+            throw new CustomException("You already accepted this invitation", "BAD REQUEST", 400);
+        }
+        invitation.setState(InvitationState.Accepted);
+        invitationRepository.save(invitation);
+        log.info(String.format("Invitation with ID %s is accepted", invitationId));
+    }
+
+    @Override
+    public void rejectInvitation(Long invitationId) {
+        Invitation invitation = getById(invitationId);
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        if (!user.isVerified()) {
+            throw new CustomException("You should verify your account first","NOT VERIFIED", 400);
+        }
+        if(!user.getEmail().equals(invitation.getCandidateEmail())) {
+            throw new CustomException("You are not the original receiver of this invitation", "UNAUTHORIZED", 403);
+        }
+        if(invitation.getState().equals(InvitationState.Rejected)) {
+            throw new CustomException("You already rejected this invitation", "BAD REQUEST", 400);
+        }
+
+        if (invitation.getState().equals(InvitationState.Expired)) {
+            throw new CustomException("This invitation had expired already", "BAD REQUEST", 400);
+        }
+        invitation.setState(InvitationState.Rejected);
+        invitationRepository.save(invitation);
+        log.info(String.format("Invitation with ID %s is reject", invitationId));
     }
 }
