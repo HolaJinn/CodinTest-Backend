@@ -18,7 +18,7 @@ public interface Routes {
     public static String tagsRoute = mainRoute + "/tags";
     public static String tagsByNameRoute = "/by-name";
     public static String ownerRoute = mainRoute + "/owner";
-    public static String createRecruiterRoute = "/create-recruiter";
+    public static String companyRoute = mainRoute + "/company";
     public static String technicalTestRoute = mainRoute + "/technical-tests";
     public static String invitationsRoute = mainRoute + "/invitations";
 }

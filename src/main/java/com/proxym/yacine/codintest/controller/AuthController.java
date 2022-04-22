@@ -75,8 +75,6 @@ public class AuthController {
 
     @GetMapping(Routes.currentUserRoute)
     public ResponseEntity<?> getCurrentUser() {
-//        AppUser appUser =  appUserService.getCurrentAuthenticatedUser();
-//        return new ResponseEntity<>(appUser, HttpStatus.OK);
         CurrentUserDto user = appUserService.getAuthenticatedUser();
         return new ResponseEntity<>(user, HttpStatus.OK);
     }

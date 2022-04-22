@@ -1,12 +1,16 @@
 package com.proxym.yacine.codintest.service;
 
 import com.proxym.yacine.codintest.dto.request.NewInvitationRequest;
+import com.proxym.yacine.codintest.dto.response.CurrentUserDto;
 import com.proxym.yacine.codintest.dto.response.InvitationDto;
+import com.proxym.yacine.codintest.dto.response.RelatedCandidateResponse;
 import com.proxym.yacine.codintest.model.Invitation;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import javax.mail.MessagingException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map;
 
 public interface InvitationService {
@@ -21,4 +25,5 @@ public interface InvitationService {
     void checkForExpiration();
     void acceptInvitation(Long invitationId);
     void rejectInvitation(Long invitationId);
+    Page<RelatedCandidateResponse> getAllRelatedCandidates(Pageable pageable);
 }

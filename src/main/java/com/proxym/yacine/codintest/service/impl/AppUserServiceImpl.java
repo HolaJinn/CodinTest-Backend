@@ -306,7 +306,8 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     @Override
     public AppUser getCurrentAuthenticatedUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return findByEmail(username);
+        AppUser user = findByEmail(username);
+        return user;
     }
 
     @Override

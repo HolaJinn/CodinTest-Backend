@@ -2,12 +2,16 @@ package com.proxym.yacine.codintest.controller;
 
 import com.proxym.yacine.codintest.dto.InvitationFilterOption;
 import com.proxym.yacine.codintest.dto.request.NewInvitationRequest;
+import com.proxym.yacine.codintest.dto.response.CurrentUserDto;
 import com.proxym.yacine.codintest.dto.response.InvitationDto;
+import com.proxym.yacine.codintest.dto.response.RelatedCandidateResponse;
+import com.proxym.yacine.codintest.model.Invitation;
 import com.proxym.yacine.codintest.service.InvitationService;
 import com.proxym.yacine.codintest.util.Routes;
 import com.proxym.yacine.codintest.util.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,5 +69,10 @@ public class InvitationController {
     public ResponseEntity<?> reject(@PathVariable Long id) {
         invitationService.rejectInvitation(id);
         return new ResponseEntity<>("Invitation Rejected", HttpStatus.OK);
+    }
+
+    @GetMapping("/related-candidates")
+    public Page<RelatedCandidateResponse> getAllRelatedCandidates(Pageable pageable) {
+        return invitationService.getAllRelatedCandidates(pageable);
     }
 }

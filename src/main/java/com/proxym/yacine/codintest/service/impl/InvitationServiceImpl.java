@@ -1,13 +1,14 @@
 package com.proxym.yacine.codintest.service.impl;
 
-import com.proxym.yacine.codintest.dto.InvitationFilterOption;
 import com.proxym.yacine.codintest.dto.request.NewInvitationRequest;
 import com.proxym.yacine.codintest.dto.response.InvitationDto;
+import com.proxym.yacine.codintest.dto.response.RelatedCandidateResponse;
 import com.proxym.yacine.codintest.exception.CustomException;
 import com.proxym.yacine.codintest.model.AppUser;
 import com.proxym.yacine.codintest.model.Invitation;
 import com.proxym.yacine.codintest.model.QInvitation;
 import com.proxym.yacine.codintest.model.TechnicalTest;
+import com.proxym.yacine.codintest.repository.AppUserRepository;
 import com.proxym.yacine.codintest.repository.InvitationRepository;
 import com.proxym.yacine.codintest.repository.TechnicalTestRepository;
 import com.proxym.yacine.codintest.service.AppUserService;
@@ -20,9 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -31,8 +30,10 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +48,9 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Autowired
     private TechnicalTestRepository technicalTestRepository;
+
+    @Autowired
+    private AppUserRepository appUserRepository;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -323,5 +327,29 @@ public class InvitationServiceImpl implements InvitationService {
         invitation.setState(InvitationState.Rejected);
         invitationRepository.save(invitation);
         log.info(String.format("Invitation with ID %s is reject", invitationId));
+    }
+
+    @Override
+    public Page<RelatedCandidateResponse> getAllRelatedCandidates(Pageable pageable) {
+
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        List<Invitation> invitations = invitationRepository.findInvitationByCompanyId(user.getCompany().getId());
+        List<String> candidates = new ArrayList<>();
+        for (int i = 0; i < invitations.size(); i++) {
+            candidates.add(invitations.get(i).getCandidateEmail());
+        }
+        List<String> candidatesDistinct = candidates.stream().distinct().collect(Collectors.toList());
+        List<RelatedCandidateResponse> relatedCandidates = new ArrayList<>();
+;
+        for (int i = 0; i < candidatesDistinct.size(); i++) {
+            Optional<AppUser> relatedCandidate = appUserRepository.findByEmail(candidatesDistinct.get(i));
+            if (relatedCandidate.isPresent()) {
+                relatedCandidates.add(new RelatedCandidateResponse(relatedCandidate.get().getEmail(), relatedCandidate.get().getFirstName(), relatedCandidate.get().getLastName()));
+            } else {
+                relatedCandidates.add(new RelatedCandidateResponse(candidatesDistinct.get(i), null, null));
+            }
+        }
+        Page<RelatedCandidateResponse> candidatesPage = new PageImpl<>(relatedCandidates, pageable, relatedCandidates.size());
+        return candidatesPage;
     }
 }
