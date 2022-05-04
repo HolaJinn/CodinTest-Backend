@@ -356,7 +356,9 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     private Page<ExerciseDto> doYourJob(QExercise qExercise, BooleanBuilder builder, Map<String, Object> options, AppUser user) {
         int page = 0, limit = 10;
-        builder.and(qExercise.company.id.eq(user.getCompany().getId()));
+        if (user.getRole().getId() != 4) {
+            builder.and(qExercise.company.id.eq(user.getCompany().getId()));
+        }
         if(options == null) {
             return exerciseRepository.findAll(builder, PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "CreatedDate", "id")))
                     .map(exercise -> modelMapper.map(exercise, ExerciseDto.class));

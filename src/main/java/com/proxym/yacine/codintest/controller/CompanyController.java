@@ -1,7 +1,7 @@
 package com.proxym.yacine.codintest.controller;
 
 import com.proxym.yacine.codintest.dto.request.NewRecruiter;
-import com.proxym.yacine.codintest.dto.response.CurrentUserDto;
+import com.proxym.yacine.codintest.dto.response.RecruiterDto;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.CompanyService;
 import com.proxym.yacine.codintest.util.Routes;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -36,7 +35,7 @@ public class CompanyController {
     }
 
     @GetMapping("/recruiters")
-    public Page<CurrentUserDto> getAllRecruiters(@RequestParam Map<String, Object> options) {
+    public Page<RecruiterDto> getAllRecruiters(@RequestParam Map<String, Object> options) {
         return companyService.getAllRecruiters(options);
     }
 }
