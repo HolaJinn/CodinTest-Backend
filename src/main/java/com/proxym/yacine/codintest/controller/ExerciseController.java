@@ -103,10 +103,4 @@ public class ExerciseController {
         exerciseService.addInitialCode(newInitialCodeForExercise);
         return new ResponseEntity<>("Initial code added to the exercise", HttpStatus.OK);
     }
-
-    @PostMapping("/pass-exercise/{id}")
-    public ResponseEntity<ExecutionResultResponse> passExercise(@PathVariable Long id, @RequestBody NewAnswerRequest newAnswerRequest) throws JSONException {
-        ExecutionResultResponse executionResultResponse = exerciseService.passExercise(id, newAnswerRequest);
-        return new ResponseEntity<>(executionResultResponse, HttpStatus.OK);
-    }
 }

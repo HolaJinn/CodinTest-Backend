@@ -1,7 +1,5 @@
 package com.proxym.yacine.codintest.service.impl;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.proxym.yacine.codintest.dto.ExerciseFilterOption;
 import com.proxym.yacine.codintest.dto.request.NewAnswerRequest;
 import com.proxym.yacine.codintest.dto.request.NewExerciseRequest;
 import com.proxym.yacine.codintest.dto.request.NewInitialCodeForExercise;
@@ -12,12 +10,13 @@ import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.repository.*;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.ExerciseService;
+import com.proxym.yacine.codintest.util.ExecutionResult;
 import com.proxym.yacine.codintest.util.ExerciseDifficulty;
 import com.proxym.yacine.codintest.util.ExerciseStatus;
 import com.proxym.yacine.codintest.util.Order;
 import com.querydsl.core.BooleanBuilder;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import netscape.javascript.JSObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -29,7 +28,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
@@ -60,6 +58,9 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Autowired
     private CompanyRepository companyRepository;
+
+    @Autowired
+    private AnswerRepository answerRepository;
 
 
     @Autowired
@@ -348,29 +349,6 @@ public class ExerciseServiceImpl implements ExerciseService {
         exercise.setProgrammingLanguage(programmingLanguage);
         exercise.setInitialCode(newInitialCodeForExercise.getInitialCode());
         exerciseRepository.save(exercise);
-    }
-
-    @Override
-    public ExecutionResultResponse passExercise(Long exerciseId, NewAnswerRequest newAnswerRequest) throws JSONException {
-        AppUser user = appUserService.getCurrentAuthenticatedUser();
-        Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
-        List<TestCase> testCases = exercise.getTestCases();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String uri = "http://localhost:2358/submissions";
-        JSONObject submittedCode = new JSONObject();
-        submittedCode.put("source_code", newAnswerRequest.getCode());
-        submittedCode.put("language_id", newAnswerRequest.getProgrammingLanguage());
-        HttpEntity<String> request =
-                new HttpEntity<String>(submittedCode.toString(), headers);
-        RestTemplate restTemplate = new RestTemplate();
-        TokenResponse result = restTemplate.postForObject(uri, request,TokenResponse.class);
-        ExecutionResultResponse executionResult = restTemplate.getForObject(uri + "/" + result.getToken(), ExecutionResultResponse.class);
-        while (executionResult.getStatus().getId().equals("1") || executionResult.getStatus().getId().equals("2")) {
-            executionResult = restTemplate.getForObject(uri + "/" + result.getToken(), ExecutionResultResponse.class);
-        }
-        return executionResult;
     }
 
     /**

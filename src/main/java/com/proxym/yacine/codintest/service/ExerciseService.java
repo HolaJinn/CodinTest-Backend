@@ -29,5 +29,4 @@ public interface ExerciseService {
     void addTag(Long exerciseId, Integer tagId);
     void deleteTag(Long exerciseId, Integer tagId);
     void addInitialCode(NewInitialCodeForExercise newInitialCodeForExercise);
-    ExecutionResultResponse passExercise(Long exerciseId, NewAnswerRequest newAnswerRequest) throws JSONException;
 }

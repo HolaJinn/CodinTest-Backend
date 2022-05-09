@@ -27,9 +27,7 @@ public class Answer extends Auditable{
     private AppUser user;
 
     private String code;
-    private String output;
     private ExecutionResult executionResult;
-    private String error;
-    private String score;
+    private Long score;
 
 }

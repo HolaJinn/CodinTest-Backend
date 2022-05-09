@@ -21,4 +21,5 @@ public interface Routes {
     public static String companyRoute = mainRoute + "/company";
     public static String technicalTestRoute = mainRoute + "/technical-tests";
     public static String invitationsRoute = mainRoute + "/invitations";
+    public static String judgeRoute = mainRoute + "/judge";
 }
