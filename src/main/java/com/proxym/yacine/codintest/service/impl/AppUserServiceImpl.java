@@ -3,6 +3,7 @@ package com.proxym.yacine.codintest.service.impl;
 import com.proxym.yacine.codintest.config.security.TokenProvider;
 import com.proxym.yacine.codintest.dto.request.*;
 import com.proxym.yacine.codintest.dto.response.AuthenticationResponse;
+import com.proxym.yacine.codintest.dto.response.CurrentUserDto;
 import com.proxym.yacine.codintest.exception.CustomException;
 import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.repository.*;
@@ -14,6 +15,7 @@ import com.proxym.yacine.codintest.validator.AppUserValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -46,9 +48,6 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     private AppUserRepository appUserRepository;
 
     @Autowired
-    private OwnerRepository ownerRepository;
-
-    @Autowired
     private CompanyRepository companyRepository;
 
     @Autowired
@@ -65,6 +64,9 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
 
     /*
@@ -84,6 +86,13 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     @Override
     public AppUser findByEmail(String email) {
         return appUserRepository.findByEmail(email).orElseThrow(() -> new CustomException("No user found with such email", "USER NOT FOUND", 404));
+    }
+
+    @Override
+    public AppUser findById(Long id) {
+        return appUserRepository.findById(id).orElseThrow(
+                () -> new CustomException("No user found with such ID", "USER NOT FOUND", 404)
+        );
     }
 
     private Set<SimpleGrantedAuthority> getAuthority(AppUser user) {
@@ -114,7 +123,7 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
         String randomCode = RandomString.make(64);
         Role role = roleService.findByName(newAppUser.getRole());
         if (role.getId() == 1) {
-            SuperAdmin superAdmin = SuperAdmin.builder()
+            AppUser superAdmin = AppUser.builder()
                     .email(newAppUser.getEmail())
                     .firstName(newAppUser.getFirstName())
                     .lastName(newAppUser.getLastName())
@@ -122,45 +131,15 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
                     .photoURL("Default photo")
                     .state(UserState.ACTIVE)
                     .verified(true)
+                    .company(null)
+                    .roleInCompany(null)
                     .role(role)
                     .build();
             appUserRepository.save(superAdmin);
         }
 
-        if(role.getId() == 2) {
-            Owner owner = Owner.builder()
-                    .email(newAppUser.getEmail())
-                    .firstName(newAppUser.getFirstName())
-                    .lastName(newAppUser.getLastName())
-                    .password(bCryptPasswordEncoder.encode(newAppUser.getPassword()))
-                    .photoURL("Default photo")
-                    .state(UserState.ACTIVE)
-                    .verified(false)
-                    .role(role)
-                    .verificationCode(randomCode)
-                    .build();
-            appUserRepository.save(owner);
-            sendVerificationCode(newAppUser, "owner", randomCode);
-        }
-
-        if (role.getId() == 3) {
-            Recruiter recruiter = Recruiter.builder()
-                    .email(newAppUser.getEmail())
-                    .firstName(newAppUser.getFirstName())
-                    .lastName(newAppUser.getLastName())
-                    .password(bCryptPasswordEncoder.encode(newAppUser.getPassword()))
-                    .photoURL("Default photo")
-                    .state(UserState.ACTIVE)
-                    .verified(false)
-                    .role(role)
-                    .verificationCode(randomCode)
-                    .build();
-            appUserRepository.save(recruiter);
-            sendVerificationCode(newAppUser, siteURL, randomCode);
-        }
-
         if (role.getId() == 4) {
-            Candidate candidate = Candidate.builder()
+            AppUser candidate = AppUser.builder()
                     .email(newAppUser.getEmail())
                     .firstName(newAppUser.getFirstName())
                     .lastName(newAppUser.getLastName())
@@ -168,6 +147,8 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
                     .photoURL("Default photo")
                     .state(UserState.ACTIVE)
                     .verified(false)
+                    .company(null)
+                    .roleInCompany(null)
                     .role(role)
                     .verificationCode(randomCode)
                     .build();
@@ -180,16 +161,13 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     /*
     * This method unlike the saveAppUser method will only save company owners.
     * Because it is provided with information about the company.
-    * I won't delete the other methods from the company owner service and the saveAppUser method now .
-    * Until I verify the performance of this method.
     * */
-
     @Override
     public void saveCompanyOwner(NewCompanyOwner newCompanyOwner, String siteURL) throws MessagingException, UnsupportedEncodingException {
         checker(newCompanyOwner);
         String randomCode = RandomString.make(64);
         Role role = roleService.findByName(newCompanyOwner.getRole());
-        Owner owner = Owner.builder()
+        AppUser owner = AppUser.builder()
                 .email(newCompanyOwner.getEmail())
                 .firstName(newCompanyOwner.getFirstName())
                 .lastName(newCompanyOwner.getLastName())
@@ -197,9 +175,9 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
                 .photoURL("Default photo")
                 .state(UserState.ACTIVE)
                 .verified(false)
+                .roleInCompany(newCompanyOwner.getRoleInCompany())
                 .role(role)
                 .verificationCode(randomCode)
-                .roleInCompany(newCompanyOwner.getRoleInCompany())
                 .build();
         appUserRepository.save(owner);
         sendVerificationCode(newCompanyOwner, "owner", randomCode);
@@ -213,11 +191,44 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
                 .build();
 
         companyRepository.save(company);
-        Owner newOwner = ownerRepository.findById(owner.getId()).orElseThrow(() -> new CustomException("No owner found with such ID", "USER NOT FOUND", 404));
+        AppUser newOwner = appUserRepository.findById(owner.getId()).orElseThrow(() -> new CustomException("No owner found with such ID", "USER NOT FOUND", 404));
         newOwner.setCompany(company);
-        ownerRepository.save(newOwner);
+        appUserRepository.save(newOwner);
 
         log.info(String.format("Registration success for user { email: %s } at %s",newCompanyOwner.getEmail(), LocalDateTime.now().toString()));
+    }
+
+
+    /*
+    * This method allow the company owner to create a new recruiter and save it to it's related company
+    * */
+    @Override
+    public void saveRecruiter(NewRecruiter newRecruiter,String siteURL) throws MessagingException, UnsupportedEncodingException {
+        AppUser owner = getCurrentAuthenticatedUser();
+        checker(newRecruiter);
+        String randomCode = RandomString.make(64);
+        Role role = roleService.findByName(newRecruiter.getRole());
+
+        if (owner.getRole().getId().intValue() != 2) {
+            throw new CustomException("You are unauthorized to add new recruiter", "UNAUTHORIZED", 403);
+        }
+
+        AppUser recruiter = AppUser.builder()
+                .email(newRecruiter.getEmail())
+                .firstName(newRecruiter.getFirstName())
+                .lastName(newRecruiter.getLastName())
+                .password(bCryptPasswordEncoder.encode(newRecruiter.getPassword()))
+                .photoURL("Default photo")
+                .state(UserState.ACTIVE)
+                .verified(false)
+                .company(owner.getCompany())
+                .roleInCompany(newRecruiter.getRoleInCompany())
+                .role(role)
+                .verificationCode(randomCode)
+                .build();
+        appUserRepository.save(recruiter);
+        sendVerificationCode(newRecruiter,siteURL,randomCode);
+
     }
 
     /*
@@ -244,7 +255,7 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 
         content = content.replace("[[name]]", newAppUser.getFirstName());
 //        String verifyURL = siteURL + "/auth/verify?code=" + code;
-        String verifyURL = Constants.CLIENT_URL + siteURL + "/auth/verify?code=" + code;
+        String verifyURL = Constants.CLIENT_URL + "auth/verify?code=" + code;
 
         content = content.replace("[[URL]]", verifyURL);
 
@@ -295,7 +306,15 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     @Override
     public AppUser getCurrentAuthenticatedUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return findByEmail(username);
+        AppUser user = findByEmail(username);
+        return user;
+    }
+
+    @Override
+    public CurrentUserDto getAuthenticatedUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        AppUser user = findByEmail(username);
+        return modelMapper.map(user, CurrentUserDto.class);
     }
 
     @Override

@@ -44,11 +44,13 @@ public class AppUser extends Auditable {
     @Column(name = "reset_password_token", length = 64)
     private String resetPasswordToken;
 
+    @ManyToOne
+    private Company company;
+
+    private String roleInCompany;
+
     @OneToOne
     @JoinColumn(name = "role_id")
     private Role role;
-
-    @OneToMany
-    private List<Exercise> exercises;
 
 }

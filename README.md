@@ -1,1 +1,3 @@
-Version v1.0
+Version v2.0
+
+Contain dashboard and users features
