@@ -2,11 +2,13 @@ package com.proxym.yacine.codintest.controller;
 
 import com.proxym.yacine.codintest.dto.ExerciseFilterOption;
 import com.proxym.yacine.codintest.dto.request.*;
+import com.proxym.yacine.codintest.dto.response.ExecutionResultResponse;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TagResponse;
 import com.proxym.yacine.codintest.dto.response.TestCaseResponse;
 import com.proxym.yacine.codintest.service.ExerciseService;
 import com.proxym.yacine.codintest.util.Routes;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -100,5 +102,11 @@ public class ExerciseController {
     public ResponseEntity<?> addInitialCode(@RequestBody NewInitialCodeForExercise newInitialCodeForExercise) {
         exerciseService.addInitialCode(newInitialCodeForExercise);
         return new ResponseEntity<>("Initial code added to the exercise", HttpStatus.OK);
+    }
+
+    @PostMapping("/pass-exercise/{id}")
+    public ResponseEntity<ExecutionResultResponse> passExercise(@PathVariable Long id, @RequestBody NewAnswerRequest newAnswerRequest) throws JSONException {
+        ExecutionResultResponse executionResultResponse = exerciseService.passExercise(id, newAnswerRequest);
+        return new ResponseEntity<>(executionResultResponse, HttpStatus.OK);
     }
 }
