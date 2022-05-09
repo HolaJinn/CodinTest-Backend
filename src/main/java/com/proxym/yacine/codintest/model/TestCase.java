@@ -1,8 +1,10 @@
 package com.proxym.yacine.codintest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 
@@ -11,16 +13,25 @@ import javax.persistence.*;
 @Table(name = "test_case")
 @AllArgsConstructor
 @NoArgsConstructor
-public class TestCase {
+@SuperBuilder
+public class TestCase extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+    private Long score;
+
+    @Column(name = "is_sample")
+    private boolean isSample;
     private String input;
+
+    @Column(name = "expected_output")
     private String expectedOutput;
 
     @ManyToOne
     @JoinColumn(name = "execise_id")
+    @JsonIgnore
     private Exercise exercise;
 }

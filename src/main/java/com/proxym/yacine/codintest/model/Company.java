@@ -1,5 +1,6 @@
 package com.proxym.yacine.codintest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +32,7 @@ public class Company {
 
     @OneToOne
     @JoinColumn(name = "owner_id")
-    private Owner owner;
+    @JsonIgnore
+    private AppUser owner;
 
 }
