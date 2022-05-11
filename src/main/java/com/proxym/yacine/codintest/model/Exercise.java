@@ -31,7 +31,10 @@ public class Exercise extends Auditable {
     private AppUser creator;
 
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
     private ExerciseDifficulty difficulty;
     private ExerciseStatus status;
 

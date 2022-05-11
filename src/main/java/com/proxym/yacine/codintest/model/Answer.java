@@ -26,7 +26,9 @@ public class Answer extends Auditable{
     @OneToOne
     private AppUser user;
 
+    @Column(columnDefinition = "TEXT")
     private String code;
+
     private ExecutionResult executionResult;
     private Long score;
 

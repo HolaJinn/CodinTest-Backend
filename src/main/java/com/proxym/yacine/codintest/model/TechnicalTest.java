@@ -28,6 +28,8 @@ public class TechnicalTest extends Auditable{
     private AppUser creator;
 
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "timer_in_minute")
