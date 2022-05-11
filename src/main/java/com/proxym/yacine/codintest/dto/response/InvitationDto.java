@@ -17,7 +17,7 @@ public class InvitationDto {
     private Long id;
     private CurrentUserDto invitedBy;
     private String candidateEmail;
-    private Long technicalTestId;
+    private TechnicalTestDto technicalTest;
     private String subject;
     private LocalDateTime expirationDate;
     private InvitationState state;

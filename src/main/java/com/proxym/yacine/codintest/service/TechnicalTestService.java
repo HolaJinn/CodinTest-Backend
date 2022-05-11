@@ -12,6 +12,7 @@ import java.util.Map;
 public interface TechnicalTestService {
 
     Page<TechnicalTestDto> findAll(Map<String, Object> options);
+    TechnicalTestDto findById(Long id);
     TechnicalTestDto create(NewTechnicalTestRequest newTechnicalTestRequest);
     void update(Long id, Map<String, Object> changes);
     void delete(Long id);

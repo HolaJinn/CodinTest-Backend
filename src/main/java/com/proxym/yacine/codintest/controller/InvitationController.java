@@ -35,6 +35,12 @@ public class InvitationController {
         return invitationService.findAll(options);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<InvitationDto> findById(@PathVariable Long id) {
+        InvitationDto invitation = invitationService.findById(id);
+        return new ResponseEntity<>(invitation, HttpStatus.OK);
+    }
+
     @GetMapping("/my-invitations")
     public Page<InvitationDto> findCurrentUserInvitations(@RequestParam Map<String, Object> options) {
         return invitationService.findCurrentUserInvitations(options);

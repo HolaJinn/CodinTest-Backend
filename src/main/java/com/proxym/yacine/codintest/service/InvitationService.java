@@ -16,6 +16,7 @@ import java.util.Map;
 public interface InvitationService {
 
     Page<InvitationDto> findAll(Map<String, Object> options);
+    InvitationDto findById(Long id);
     Page<InvitationDto> findCurrentUserInvitations(Map<String, Object> options);
     Invitation getById(Long id);
     void create(NewInvitationRequest newInvitationRequest,String siteURL) throws MessagingException, UnsupportedEncodingException;

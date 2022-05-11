@@ -66,6 +66,13 @@ public class InvitationServiceImpl implements InvitationService {
         return doYourJob(qInvitation, builder, options, user);
     }
 
+    @Override
+    public InvitationDto findById(Long id) {
+        Invitation invitation = invitationRepository.findById(id).orElseThrow(
+                () -> new CustomException("No invitation found with such ID", "INVITATION NOT FOUND", 400));
+        return modelMapper.map(invitation, InvitationDto.class);
+    }
+
     private Page<InvitationDto> doYourJob(QInvitation qInvitation, BooleanBuilder builder, Map<String, Object> options, AppUser user) {
         int page = 0, limit = 10;
 

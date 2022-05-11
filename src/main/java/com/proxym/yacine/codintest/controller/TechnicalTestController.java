@@ -29,6 +29,12 @@ public class TechnicalTestController {
         return technicalTestService.findAll(options);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TechnicalTestDto> findById(@PathVariable Long id) {
+        TechnicalTestDto technicalTest = technicalTestService.findById(id);
+        return new ResponseEntity<>(technicalTest, HttpStatus.OK);
+    }
+
     @PostMapping("")
     public ResponseEntity<TechnicalTestDto> create(@RequestBody NewTechnicalTestRequest newTechnicalTestRequest) {
         TechnicalTestDto technicalTest = technicalTestService.create(newTechnicalTestRequest);

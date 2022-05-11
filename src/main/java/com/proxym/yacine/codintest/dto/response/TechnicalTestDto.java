@@ -17,7 +17,7 @@ import java.util.List;
 public class TechnicalTestDto {
 
     private Long id;
-    private AppUser creator;
+    private CurrentUserDto creator;
     private String title;
     private String description;
     private Integer timerInMinute;

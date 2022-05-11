@@ -52,6 +52,14 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
         return doYourJob(qTechnicalTest, builder, options, user);
     }
 
+    @Override
+    public TechnicalTestDto findById(Long id) {
+        TechnicalTest technicalTest = technicalTestRepository.findById(id).orElseThrow(
+                () -> new CustomException("No technical test found with such ID", "TECHNICAL TEST NOT FOUND", 400));
+        return modelMapper.map(technicalTest, TechnicalTestDto.class);
+
+    }
+
     private Page<TechnicalTestDto> doYourJob(QTechnicalTest qTechnicalTest, BooleanBuilder builder, Map<String, Object> options, AppUser user) {
         int page = 0, limit = 10;
 
