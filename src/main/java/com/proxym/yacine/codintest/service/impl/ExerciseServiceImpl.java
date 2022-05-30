@@ -10,6 +10,7 @@ import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.repository.*;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.ExerciseService;
+import com.proxym.yacine.codintest.service.TechnicalTestService;
 import com.proxym.yacine.codintest.util.ExecutionResult;
 import com.proxym.yacine.codintest.util.ExerciseDifficulty;
 import com.proxym.yacine.codintest.util.ExerciseStatus;
@@ -55,6 +56,12 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private TechnicalTestRepository technicalTestRepository;
+
+    @Autowired
+    private TechnicalTestService technicalTestService;
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -175,9 +182,12 @@ public class ExerciseServiceImpl implements ExerciseService {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
-
         if(exercise.getCreator().getId() != user.getId()) {
             throw new CustomException("You are not the original creator of this exercise!", "UNAUTHORIZED", 403);
+        }
+        List<TechnicalTest> technicalTests = technicalTestRepository.findTechnicalTestsByExercises(exercise);
+        for (int i = 0; i < technicalTests.size(); i++) {
+            technicalTestService.removeExercise(technicalTests.get(i).getId(), exercise.getId());
         }
         exerciseRepository.delete(exercise);
         log.info(String.format("Exercise with ID %s is deleted successfully", exerciseId));

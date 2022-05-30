@@ -5,11 +5,9 @@ import com.proxym.yacine.codintest.dto.request.NewTechnicalTestRequest;
 import com.proxym.yacine.codintest.dto.response.ExerciseDto;
 import com.proxym.yacine.codintest.dto.response.TechnicalTestDto;
 import com.proxym.yacine.codintest.exception.CustomException;
-import com.proxym.yacine.codintest.model.AppUser;
-import com.proxym.yacine.codintest.model.Exercise;
-import com.proxym.yacine.codintest.model.QTechnicalTest;
-import com.proxym.yacine.codintest.model.TechnicalTest;
+import com.proxym.yacine.codintest.model.*;
 import com.proxym.yacine.codintest.repository.ExerciseRepository;
+import com.proxym.yacine.codintest.repository.InvitationRepository;
 import com.proxym.yacine.codintest.repository.TechnicalTestRepository;
 import com.proxym.yacine.codintest.service.AppUserService;
 import com.proxym.yacine.codintest.service.TechnicalTestService;
@@ -40,6 +38,9 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
 
     @Autowired
     private ExerciseRepository exerciseRepository;
+
+    @Autowired
+    private InvitationRepository invitationRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -151,6 +152,12 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
         if(technicalTest.getCreator().getId() != user.getId()) {
             throw new CustomException("You are not the original creator of this technical test!", "UNAUTHORIZED", 403);
         }
+
+        List<Invitation> invitations = invitationRepository.findInvitationsByTechnicalTest(technicalTest);
+        for (int i = 0; i < invitations.size(); i++) {
+            invitations.get(i).setTechnicalTest(null);
+            invitationRepository.save(invitations.get(i));
+        }
         technicalTestRepository.deleteById(id);
         log.info(String.format("Technical test with ID %s is deleted successfully", id));
     }
@@ -221,7 +228,7 @@ public class TechnicalTestServiceImpl implements TechnicalTestService {
         if (technicalTest.getCreator().getId() != user.getId()) {
             throw new CustomException("You are not the original creator of this technical test!", "UNAUTHORIZED", 403);
         }
-        Exercise exercise = exerciseRepository.findById(id).orElseThrow(() -> new CustomException("There is no exercise with such ID", "EXERCISE NOT FOUND", 404));
+        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new CustomException("There is no exercise with such ID", "EXERCISE NOT FOUND", 404));
 
         if (exercise.getCompany().getId() != user.getCompany().getId()) {
             throw new CustomException("This exercise doesn't exist on your company's virtual space!!", "BAD REQUEST", 400);

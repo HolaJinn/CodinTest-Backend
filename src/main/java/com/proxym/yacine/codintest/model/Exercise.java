@@ -63,8 +63,6 @@ public class Exercise extends Auditable {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "technical_test_id")
-//    private TechnicalTest technicalTest;
+
+
 }

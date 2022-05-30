@@ -20,9 +20,15 @@ public class JudgeController {
     @Autowired
     private JudgeService judgeService;
 
-    @PostMapping("/pass-exercise/{id}")
-    public ResponseEntity<List<ExecutionResultResponse>> passExercise(@PathVariable Long id, @RequestBody NewAnswerRequest newAnswerRequest) throws JSONException {
-        List<ExecutionResultResponse> executionResultResponse = judgeService.passExercise(id, newAnswerRequest);
+    @PostMapping("/submit-code/{id}")
+    public ResponseEntity<List<ExecutionResultResponse>> submitCode(@PathVariable Long id, @RequestBody NewAnswerRequest newAnswerRequest) throws JSONException {
+        List<ExecutionResultResponse> executionResultResponse = judgeService.executeCodeForSubmission(id, newAnswerRequest);
+        return new ResponseEntity<>(executionResultResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/test-code/{id}")
+    public ResponseEntity<List<ExecutionResultResponse>> testCode(@PathVariable Long id, @RequestBody NewAnswerRequest newAnswerRequest) throws JSONException {
+        List<ExecutionResultResponse> executionResultResponse = judgeService.executeCodeForSample(id, newAnswerRequest);
         return new ResponseEntity<>(executionResultResponse, HttpStatus.OK);
     }
 }

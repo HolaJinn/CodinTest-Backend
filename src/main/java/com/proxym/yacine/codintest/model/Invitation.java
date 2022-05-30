@@ -27,7 +27,7 @@ public class Invitation extends Auditable{
     @JsonIgnore
     private AppUser invitedBy;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private TechnicalTest technicalTest;
 
     @Column(name = "candidate_email", nullable = false)

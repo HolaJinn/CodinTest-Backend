@@ -7,5 +7,6 @@ import org.json.JSONException;
 import java.util.List;
 
 public interface JudgeService {
-    List<ExecutionResultResponse> passExercise(Long exerciseId, NewAnswerRequest newAnswerRequest) throws JSONException;
+    List<ExecutionResultResponse> executeCodeForSubmission(Long exerciseId, NewAnswerRequest newAnswerRequest) throws JSONException;
+    List<ExecutionResultResponse> executeCodeForSample(Long exerciseId, NewAnswerRequest newAnswerRequest) throws JSONException;
 }

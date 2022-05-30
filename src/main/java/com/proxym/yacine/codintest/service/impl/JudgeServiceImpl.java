@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class JudgeServiceImpl implements JudgeService {
@@ -37,7 +38,7 @@ public class JudgeServiceImpl implements JudgeService {
     @Autowired
     private AnswerRepository answerRepository;
     @Override
-    public List<ExecutionResultResponse> passExercise(Long exerciseId, NewAnswerRequest newAnswerRequest) throws JSONException {
+    public List<ExecutionResultResponse> executeCodeForSubmission(Long exerciseId, NewAnswerRequest newAnswerRequest) throws JSONException {
         AppUser user = appUserService.getCurrentAuthenticatedUser();
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
@@ -83,6 +84,40 @@ public class JudgeServiceImpl implements JudgeService {
             answer.setExecutionResult(ExecutionResult.Wrong);
         }
         answerRepository.save(answer);
+        return results;
+    }
+
+    @Override
+    public List<ExecutionResultResponse> executeCodeForSample(Long exerciseId, NewAnswerRequest newAnswerRequest) throws JSONException {
+        AppUser user = appUserService.getCurrentAuthenticatedUser();
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new CustomException("No exercise found with such ID", "EXERCISE NOT FOUND", 404));
+        List<TestCase> testCases = exercise.getTestCases().stream().filter(testCase -> testCase.isSample() == true).collect(Collectors.toList());
+        boolean isCorrect = true;
+        List<ExecutionResultResponse> results = new ArrayList<>();
+        for(int i = 0; i < testCases.size(); i++) {
+            testCases.get(i).getInput();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String uri = "http://localhost:2358/submissions";
+            JSONObject submittedCode = new JSONObject();
+            submittedCode.put("source_code", newAnswerRequest.getCode());
+            submittedCode.put("language_id", newAnswerRequest.getProgrammingLanguage());
+            submittedCode.put("stdin", testCases.get(i).getInput());
+            submittedCode.put("expected_output", testCases.get(i).getExpectedOutput());
+            HttpEntity<String> request =
+                    new HttpEntity<String>(submittedCode.toString(), headers);
+            RestTemplate restTemplate = new RestTemplate();
+            TokenResponse result = restTemplate.postForObject(uri, request,TokenResponse.class);
+            ExecutionResultResponse executionResult = restTemplate.getForObject(uri + "/" + result.getToken(), ExecutionResultResponse.class);
+            while (executionResult.getStatus().getId().equals("1") || executionResult.getStatus().getId().equals("2")) {
+                executionResult = restTemplate.getForObject(uri + "/" + result.getToken(), ExecutionResultResponse.class);
+            }
+            if (!executionResult.getStatus().getId().equals("3")) {
+                isCorrect = false;
+            }
+            results.add(executionResult);
+        }
         return results;
     }
 }
